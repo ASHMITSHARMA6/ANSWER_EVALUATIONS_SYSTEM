@@ -1,0 +1,110 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f5f6f8;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* --- Login --- */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 1rem;
+}
+.login-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  padding: 2rem;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+.login-card h2 { margin: 0 0 1.5rem; color: #16213e; font-size: 1.35rem; }
+.login-switch { margin-top: 1rem; color: #666; font-size: 0.9rem; }
+.link-btn { background: none; border: none; color: #0f3460; cursor: pointer; text-decoration: underline; font-size: inherit; }
+
+/* --- Navbar --- */
+.navbar { background: #1a1a2e; color: #fff; padding: 0 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.navbar-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.nav-brand { color: #fff; font-weight: 700; text-decoration: none; margin-right: 1rem; }
+.nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; flex: 1; }
+.nav-link { color: #b8c5d6; text-decoration: none; padding: 0.9rem 0.6rem; font-size: 0.9rem; border-radius: 6px; }
+.nav-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-link.active { color: #fff; background: rgba(255,255,255,0.12); }
+.btn-logout { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: auto; }
+.btn-logout:hover { background: rgba(255,255,255,0.1); }
+
+/* --- Main content --- */
+.app-main { max-width: 700px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+/* --- Pages --- */
+.page { }
+.page h1 { font-size: 1.5rem; color: #1a1a2e; margin: 0 0 0.4rem; }
+.page-desc { color: #555; font-size: 0.95rem; margin: 0 0 1.25rem; line-height: 1.4; }
+
+/* --- Forms --- */
+.form-card { background: #fff; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: 1rem; }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-weight: 500; color: #333; margin-bottom: 0.35rem; font-size: 0.9rem; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; font-family: inherit;
+  box-sizing: border-box;
+}
+.form-group textarea { min-height: 120px; resize: vertical; }
+.form-group-sm input { max-width: 200px; }
+.form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.form-row .form-group { flex: 1; min-width: 140px; }
+.form-error { color: #c62828; background: #ffebee; padding: 0.5rem 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.9rem; }
+.form-success { color: #2e7d32; background: #e8f5e9; padding: 0.5rem 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.9rem; }
+.btn-primary { background: #0f3460; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer; margin-top: 0.25rem; }
+.btn-primary:hover:not(:disabled) { background: #16213e; }
+.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+/* --- Upload material: text / PDF tabs --- */
+.upload-mode-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.upload-mode-tabs .tab { background: #eee; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.95rem; }
+.upload-mode-tabs .tab:hover { background: #e5e5e5; }
+.upload-mode-tabs .tab.active { background: #0f3460; color: #fff; border-color: #0f3460; }
+.file-input { padding: 0.5rem 0; }
+.file-name { font-size: 0.9rem; color: #0f3460; margin-top: 0.35rem; }
+
+/* --- Dashboard --- */
+.dashboard-page .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.dashboard-card { display: block; background: #fff; border-radius: 10px; padding: 1.25rem; text-decoration: none; color: inherit; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 1px solid transparent; transition: border-color 0.15s, box-shadow 0.15s; }
+.dashboard-card:hover { border-color: #0f3460; box-shadow: 0 4px 14px rgba(15,52,96,0.12); }
+.dashboard-card h3 { margin: 0 0 0.4rem; font-size: 1.05rem; color: #1a1a2e; }
+.dashboard-card p { margin: 0; font-size: 0.85rem; color: #666; line-height: 1.35; }
+
+/* --- Question generator --- */
+.questions-list { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }
+.questions-list h3 { font-size: 1rem; margin: 0 0 0.75rem; color: #333; }
+.questions-list ol { margin: 0; padding-left: 1.25rem; }
+.questions-list li { margin-bottom: 0.5rem; line-height: 1.4; }
+
+/* --- Evaluation result --- */
+.eval-result { margin-top: 1.25rem; padding: 1rem; background: #f0f7ff; border-radius: 8px; border-left: 4px solid #0f3460; }
+.eval-result h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+.eval-result p { margin: 0.4rem 0; }
+.eval-hint { font-size: 0.85rem; color: #666; margin-top: 0.75rem !important; }
+
+/* --- Results --- */
+.loading, .empty-state { color: #666; padding: 1rem 0; }
+.results-list { display: flex; flex-direction: column; gap: 1rem; }
+.result-card { background: #fff; border-radius: 8px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #eee; }
+.result-header { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.result-name { font-weight: 600; color: #1a1a2e; }
+.result-marks { color: #0f3460; font-weight: 600; }
+.result-date { font-size: 0.8rem; color: #888; margin-left: auto; }
+.result-question { font-size: 0.9rem; color: #555; margin: 0.4rem 0; font-style: italic; }

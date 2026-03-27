@@ -1,0 +1,118 @@
+# ⚡ SUPER QUICK START
+
+## Run This Now
+
+```bash
+cd /home/ansh/Desktop/TES
+
+# Option A: Auto-start (Easiest)
+bash start.sh              # Linux/Mac
+start.bat                  # Windows
+
+# Option B: Manual (2 terminals)
+# Terminal 1:
+cd backend && npm install && npm run seed && npm start
+
+# Terminal 2:
+cd frontend && npm install && npm start
+```
+
+**Then:**
+- Open: http://localhost:3000
+- Login: `teacher@test.com` / `teacher123`
+
+---
+
+## What You Get
+
+```
+✅ Material upload (with vector chunking)
+✅ Model answer setup
+✅ Single answer evaluation
+✅ **BATCH UPLOAD** (NEW!) - Upload folder of answers, evaluate all
+✅ Results view
+```
+
+---
+
+## Batch Upload (NEW FEATURE)
+
+1. Dashboard → **Batch Upload**
+2. Select folder with answer files (PDF/TXT/JSON)
+3. Click "Upload & Process"
+4. System evaluates each file:
+   - Extracts text
+   - Finds similar model answer chunks
+   - LLM scores with context only
+   - Saves: Score + Matched concepts + Missing concepts + Feedback
+
+**Result:**
+```
+File: student1.pdf
+Score: 85/100
+✓ Matched: [concept1, concept2]
+✗ Missing: [concept3]
+Feedback: "Good understanding but..."
+
+File: student2.pdf
+Score: 72/100
+... (same format)
+
+Summary:
+Average: 78.5/100
+Range: 72-85
+Time: 4.2s
+```
+
+---
+
+## File Structure
+
+```
+Your-Project/
+├── SETUP.md               ← START HERE if confused
+├── README_SIMPLE.md       ← Quick reference
+├── start.sh               ← Linux/Mac auto-run
+├── start.bat              ← Windows auto-run
+├── backend/
+│   └── src/routes/
+│       └── batchUploadAnswers.js  ← NEW
+└── frontend/
+    └── src/components/
+        └── BatchUploadAnswers.js  ← NEW
+```
+
+---
+
+## Supported File Formats
+
+- ✅ PDF (text-based)
+- ✅ TXT (plain text)
+- ✅ JSON (`{"answer": "text here"}`)
+
+---
+
+## Requirements
+
+- Node.js 18+
+- MongoDB (local or Atlas)
+- OpenAI API key (optional)
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Backend won't start | Check MongoDB running |
+| Frontend won't start | Check port 3000 free |
+| Login fails | Run `npm run seed` in backend |
+| Batch upload fails | Check file formats |
+
+---
+
+## Done ✅
+
+Everything ready. Just run `bash start.sh` and go to http://localhost:3000
+
+For questions: read SETUP.md or README_SIMPLE.md

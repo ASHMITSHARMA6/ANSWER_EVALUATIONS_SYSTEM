@@ -1,0 +1,80 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║          VECTOR EVALUATION SYSTEM - DO THIS NOW                       ║
+║                                                                       ║
+║  Everything is ready. Follow these steps:                             ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+STEP 1: Start the system
+═══════════════════════════════════════════════════════════════════════
+
+Option A: Auto-start (Easiest)
+  $ cd /home/ansh/Desktop/TES
+  $ bash start.sh
+
+Option B: Manual
+  Terminal 1:
+    $ cd backend
+    $ npm install && npm run seed && npm start
+  
+  Terminal 2:
+    $ cd frontend
+    $ npm install && npm start
+
+Wait 30 seconds for everything to start.
+
+STEP 2: Open in browser
+═══════════════════════════════════════════════════════════════════════
+
+Open: http://localhost:3000
+
+STEP 3: Login
+═══════════════════════════════════════════════════════════════════════
+
+Email:    teacher@test.com
+Password: teacher123
+
+STEP 4: Try the batch upload feature (NEW!)
+═══════════════════════════════════════════════════════════════════════
+
+Dashboard → Upload Material
+  (Upload some study notes, e.g., exam material)
+
+Dashboard → Upload Model Answer
+  (Upload the ideal answer for comparison)
+
+Dashboard → Batch Upload ⭐ NEW!
+  (This is the new feature!)
+  1. Click "Select Files"
+  2. Choose 2-3 PDF or TXT files with answers
+  3. Click "Upload & Process"
+  4. See results with scores + concepts!
+
+STEP 5: View results
+═══════════════════════════════════════════════════════════════════════
+
+Dashboard → Results
+  (See all evaluations with scores, matched concepts, feedback)
+
+═══════════════════════════════════════════════════════════════════════
+
+That's it! You're done. 🎉
+
+═══════════════════════════════════════════════════════════════════════
+
+If something doesn't work:
+  1. Check MongoDB is running
+  2. Check backend says "Server running on http://localhost:5000"
+  3. Check frontend says "Compiled successfully"
+  4. Read SETUP.md for detailed troubleshooting
+
+═══════════════════════════════════════════════════════════════════════
+
+Questions? Read these in order:
+  1. START_HERE.txt     (5 min)
+  2. QUICKSTART.txt     (1 min)
+  3. SETUP.md           (5 min)
+  4. START.md           (10 min)
+
+═══════════════════════════════════════════════════════════════════════

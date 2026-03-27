@@ -1,0 +1,28 @@
+{
+  "name": "tes-backend",
+  "version": "1.0.0",
+  "description": "AI-Assisted Question Paper Generation and Answer Evaluation - Backend",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node -e \"require('node:child_process').spawn('node', ['--watch', 'src/index.js'], {stdio:'inherit'})\"",
+    "seed": "node src/scripts/seed.js"
+  },
+  "dependencies": {
+    "@google-cloud/vision": "^5.3.4",
+    "axios": "^1.13.4",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.5.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.20.1",
+    "pdf-parse": "^1.1.1",
+    "pdfkit": "^0.17.2",
+    "sharp": "^0.34.5",
+    "tesseract.js": "^7.0.0"
+  }
+}

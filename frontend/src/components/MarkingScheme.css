@@ -1,0 +1,829 @@
+/* Marking Scheme Component Styles */
+
+.marking-scheme-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.scheme-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.scheme-header h2 {
+  font-size: 28px;
+  color: #333;
+  margin: 0;
+}
+
+.btn-primary {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.btn-primary:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background-color: #da190b;
+}
+
+/* Form Section */
+
+.scheme-form-container {
+  background-color: #f5f5f5;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #ddd;
+}
+
+.marking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.marking-form h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+/* Tabs */
+.tabs-container {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 25px;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  color: #333;
+  background: #f9f9f9;
+}
+
+.tab-button.active {
+  color: #4a90e2;
+  border-bottom-color: #4a90e2;
+}
+
+/* PDF Tab Container */
+.pdf-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pdf-info-section {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border-left: 4px solid #4a90e2;
+  padding: 15px 20px;
+  border-radius: 4px;
+}
+
+.pdf-info-section h4 {
+  margin: 0 0 8px 0;
+  color: #4a90e2;
+  font-size: 16px;
+}
+
+.pdf-info-section p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.pdf-file-input-large {
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed #4a90e2;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pdf-file-input-large::file-selector-button {
+  padding: 8px 16px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.pdf-file-input-large::file-selector-button:hover {
+  background: #357abd;
+}
+
+.pdf-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  background: #e8f5e9;
+  border-radius: 4px;
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.pdf-file-info .file-size {
+  color: #999;
+  font-size: 12px;
+}
+
+/* PDF Upload Option in Form */
+.pdf-upload-option {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  border: 2px dashed #4a90e2;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 10px;
+}
+
+.pdf-upload-option h4 {
+  margin: 0 0 8px 0;
+  color: #4a90e2;
+  font-size: 16px;
+}
+
+.pdf-option-hint {
+  color: #666;
+  font-size: 13px;
+  margin: 0 0 15px 0;
+  line-height: 1.4;
+}
+
+.pdf-file-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pdf-file-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #4a90e2;
+  border-radius: 4px;
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pdf-file-input::file-selector-button {
+  padding: 6px 12px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.btn-upload-pdf-form {
+  padding: 10px 16px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.btn-upload-pdf-form:hover:not(:disabled) {
+  background: #357abd;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.4);
+}
+
+.btn-upload-pdf-form:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-divider {
+  text-align: center;
+  color: #999;
+  font-weight: 600;
+  margin: 15px 0;
+  position: relative;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background: #ddd;
+}
+
+.form-divider::before {
+  left: 0;
+}
+
+.form-divider::after {
+  right: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-section {
+  background-color: white;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.form-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.concept-input-group,
+.mistake-input-group {
+  display: grid;
+  grid-template-columns: 1fr 80px 200px 100px 80px;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: end;
+}
+
+.concept-input-group input,
+.mistake-input-group input {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.concept-input-group input:focus,
+.mistake-input-group input:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.checkbox input {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border: none !important;
+}
+
+.btn-small {
+  padding: 8px 12px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.btn-small:hover {
+  background-color: #0b7dda;
+}
+
+.concepts-list,
+.mistakes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.concept-item,
+.mistake-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 4px;
+  border-left: 3px solid #4caf50;
+}
+
+.mistake-item {
+  border-left-color: #f44336;
+}
+
+.concept-item span:first-child,
+.mistake-item span:first-child {
+  flex: 1;
+  font-weight: 500;
+  color: #333;
+}
+
+.badge {
+  background-color: #ff9800;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.deduction {
+  background-color: #f44336;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.desc {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.btn-remove {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.btn-remove:hover {
+  background-color: #da190b;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.form-actions button {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Schemes List */
+
+.schemes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.loading {
+  text-align: center;
+  color: #666;
+  padding: 40px;
+  font-size: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  grid-column: 1 / -1;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.empty-state .hint {
+  font-size: 14px;
+  color: #aaa;
+  margin-top: 8px;
+}
+
+.scheme-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.scheme-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.scheme-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.scheme-header-card h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.scheme-marks {
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.scheme-description {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 12px 0;
+  font-style: italic;
+}
+
+.scheme-section {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.scheme-section strong {
+  display: block;
+  color: #333;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.scheme-section ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #666;
+}
+
+.scheme-section li {
+  margin-bottom: 4px;
+}
+
+.scheme-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-pdf,
+.btn-view {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.btn-edit {
+  background-color: #2196f3;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #0b7dda;
+}
+
+.btn-delete {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #da190b;
+}
+
+.btn-view {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-view:hover {
+  background-color: #e68900;
+}
+
+.scheme-timestamp {
+  display: block;
+  color: #999;
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+/* Responsive Design */
+
+@media (max-width: 1024px) {
+  .schemes-list {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+
+  .concept-input-group,
+  .mistake-input-group {
+    grid-template-columns: 1fr;
+  }
+
+  .concept-input-group input,
+  .mistake-input-group input {
+    width: 100%;
+  }
+}
+
+/* PDF Upload Section Styles */
+
+.pdf-upload-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-left: 4px solid #2196f3;
+  border-radius: 4px;
+}
+
+.pdf-upload-section h5 {
+  margin: 0 0 10px 0;
+  color: #2196f3;
+  font-size: 16px;
+}
+
+.pdf-hint {
+  margin: 0 0 15px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.pdf-input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.pdf-input-group input[type="file"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.btn-upload-pdf {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.3s;
+}
+
+.btn-upload-pdf:hover:not(:disabled) {
+  background-color: #1976d2;
+}
+
+.btn-upload-pdf:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-cancel-pdf {
+  background-color: #ddd;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-pdf:hover {
+  background-color: #bbb;
+}
+
+.btn-pdf {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.btn-pdf:hover {
+  background-color: #1976d2;
+}
+
+.pdf-info {
+  background-color: #e3f2fd;
+  padding: 15px;
+  border-radius: 4px;
+  border-left: 3px solid #2196f3;
+  margin-top: 15px;
+}
+
+.pdf-uploaded {
+  color: #1976d2;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.pdf-date {
+  color: #666;
+  margin: 0 0 6px 0;
+  font-size: 12px;
+}
+
+.pdf-size {
+  color: #666;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+}
+
+.pdf-preview {
+  margin-top: 10px;
+}
+
+.pdf-preview summary {
+  cursor: pointer;
+  color: #1976d2;
+  font-weight: 500;
+  padding: 8px;
+  background-color: #fff;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.pdf-preview summary:hover {
+  background-color: #f0f0f0;
+}
+
+.pdf-preview p {
+  margin: 10px 0 0 0;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  color: #333;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .scheme-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .schemes-list {
+    grid-template-columns: 1fr;
+  }
+
+  .scheme-actions {
+    flex-wrap: wrap;
+  }
+
+  .btn-edit,
+  .btn-delete,
+  .btn-view {
+    flex: 0 1 calc(50% - 4px);
+  }
+}

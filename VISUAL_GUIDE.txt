@@ -1,0 +1,228 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║                    VECTOR EVALUATION SYSTEM                             ║
+║                 Production-Ready Academic Prototype                      ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+┌─ START HERE ──────────────────────────────────────────────────────────┐
+│                                                                        │
+│  1. Read this file (1 minute)                                         │
+│  2. Run: bash start.sh                                                │
+│  3. Open: http://localhost:3000                                       │
+│  4. Login: teacher@test.com / teacher123                              │
+│  5. Start evaluating!                                                 │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ WHAT YOU GET ────────────────────────────────────────────────────────┐
+│                                                                        │
+│  ✅ Study Material Upload                                            │
+│  ✅ Model Answer Upload                                              │
+│  ✅ Single Answer Evaluation                                         │
+│  ✅ BATCH ANSWER UPLOAD (Process folder of files) ⭐               │
+│  ✅ Results View with Scores & Concepts                             │
+│  ✅ Vector DB Semantic Matching                                      │
+│  ✅ ChatGPT Evaluation with Context Only                             │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ BATCH UPLOAD FEATURE (NEW) ──────────────────────────────────────────┐
+│                                                                        │
+│  What It Does:                                                        │
+│    Upload folder → Process each file → Show results                   │
+│                                                                        │
+│  How to Use:                                                          │
+│    Dashboard → Batch Upload → Select folder → Process                │
+│                                                                        │
+│  File Formats:                                                        │
+│    ✅ PDF   (text-based)                                             │
+│    ✅ TXT   (plain text)                                             │
+│    ✅ JSON  ({"answer": "text"})                                     │
+│                                                                        │
+│  Results Per File:                                                    │
+│    📊 Score: 85/100                                                  │
+│    ✓ Matched Concepts: [concept1, concept2]                          │
+│    ✗ Missing Concepts: [concept3]                                    │
+│    💬 Feedback: "Good understanding but..."                           │
+│                                                                        │
+│  Summary:                                                             │
+│    Average: 82.5/100 | Range: 72-92 | Time: 8.3s                     │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ QUICK START ─────────────────────────────────────────────────────────┐
+│                                                                        │
+│  Linux/Mac:                                                           │
+│    $ cd /home/ansh/Desktop/TES                                        │
+│    $ bash start.sh                                                    │
+│                                                                        │
+│  Windows:                                                             │
+│    > cd C:\Users\YourName\Desktop\TES                                │
+│    > start.bat                                                        │
+│                                                                        │
+│  Manual (2 terminals):                                                │
+│    Terminal 1:                                                        │
+│      $ cd backend && npm install && npm run seed && npm start        │
+│                                                                        │
+│    Terminal 2:                                                        │
+│      $ cd frontend && npm install && npm start                        │
+│                                                                        │
+│  Then: Open http://localhost:3000                                     │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ SYSTEM ARCHITECTURE ─────────────────────────────────────────────────┐
+│                                                                        │
+│  Frontend: React 19                                                   │
+│    ├─ Dashboard                                                       │
+│    ├─ Login                                                           │
+│    ├─ Upload Material                                                │
+│    ├─ Upload Model Answer                                            │
+│    ├─ Batch Upload ⭐                                               │
+│    ├─ Evaluate                                                        │
+│    └─ Results View                                                    │
+│                                                                        │
+│  Backend: Node.js/Express                                             │
+│    ├─ Vector DB (FAISS in JS)                                        │
+│    ├─ Embeddings (OpenAI)                                            │
+│    ├─ Chunking (semantic)                                            │
+│    ├─ LLM Evaluation (ChatGPT)                                       │
+│    └─ Routes                                                          │
+│        ├─ /upload-material                                           │
+│        ├─ /upload-model-answer                                       │
+│        └─ /batch-upload-answers ⭐                                  │
+│                                                                        │
+│  Database: MongoDB                                                    │
+│    ├─ User                                                            │
+│    ├─ StudyMaterial                                                  │
+│    ├─ ModelAnswer                                                    │
+│    ├─ StudentAnswer                                                  │
+│    ├─ EvaluationResult                                               │
+│    └─ Chunk                                                           │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ HOW BATCH UPLOAD WORKS ──────────────────────────────────────────────┐
+│                                                                        │
+│  You select folder:                                                   │
+│    ~/answers/                                                         │
+│    ├─ student1.pdf                                                    │
+│    ├─ student2.txt                                                    │
+│    └─ student3.json                                                   │
+│                                                                        │
+│  System processes each:                                               │
+│                                                                        │
+│    File 1: student1.pdf                                               │
+│      1. Extract text ────────────────────────────────────────────    │
+│      2. Generate embedding ────────────────────────────────────────  │
+│      3. Query vector DB ───────────────────────────────────────────  │
+│      4. LLM evaluates ─────────────────────────────────────────────  │
+│      5. Save result ───────────────────────────────────────────────  │
+│      ✓ Score: 85/100, Matched: [...], Missing: [...]                │
+│                                                                        │
+│    File 2: student2.txt                                               │
+│      (same process)                                                   │
+│      ✓ Score: 72/100, Matched: [...], Missing: [...]                │
+│                                                                        │
+│    File 3: student3.json                                              │
+│      (same process)                                                   │
+│      ✓ Score: 91/100, Matched: [...], Missing: [...]                │
+│                                                                        │
+│  Results display:                                                     │
+│    ┌──────────────────────────────────────────┐                      │
+│    │ Total: 3/3 ✓                             │                      │
+│    │ Average: 82.7/100                        │                      │
+│    │ Range: 72-91                             │                      │
+│    │ Time: 7.2 seconds                        │                      │
+│    └──────────────────────────────────────────┘                      │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ REQUIREMENTS ────────────────────────────────────────────────────────┐
+│                                                                        │
+│  ✅ Node.js 18+                                                      │
+│  ✅ MongoDB (local or Atlas)                                         │
+│  ✅ OpenAI API key (optional)                                        │
+│  ✅ 100 MB disk space                                                │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ FILES TO KNOW ───────────────────────────────────────────────────────┐
+│                                                                        │
+│  Quick Reference:                                                     │
+│    QUICKSTART.txt ────────── 1 minute                                │
+│    GO.md ────────────────── 2 minutes                                │
+│    SETUP.md ─────────────── 5 minutes                                │
+│    START.md ─────────────── 10 minutes                               │
+│    README_SIMPLE.md ─────── 5 minutes                                │
+│    README_START_HERE.md ─── Full summary                             │
+│                                                                        │
+│  Auto-Start:                                                          │
+│    start.sh ──────────────── Linux/Mac                               │
+│    start.bat ─────────────── Windows                                 │
+│                                                                        │
+│  Implementation:                                                      │
+│    backend/src/routes/batchUploadAnswers.js ──── API endpoint       │
+│    frontend/src/components/BatchUploadAnswers.js  UI component       │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ WORKFLOW (5 MINUTES) ────────────────────────────────────────────────┐
+│                                                                        │
+│  1. Start System                                                      │
+│     bash start.sh                                                     │
+│                                                                        │
+│  2. Login                                                             │
+│     Email: teacher@test.com                                          │
+│     Password: teacher123                                             │
+│                                                                        │
+│  3. Upload Material                                                   │
+│     Dashboard → Upload Material → Paste text                         │
+│                                                                        │
+│  4. Upload Model Answer                                              │
+│     Dashboard → Upload Model Answer → Enter Q & A                    │
+│                                                                        │
+│  5. Batch Upload ⭐                                                 │
+│     Dashboard → Batch Upload → Select folder → Process               │
+│                                                                        │
+│  6. View Results                                                      │
+│     Dashboard → Results                                              │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ TROUBLESHOOTING ─────────────────────────────────────────────────────┐
+│                                                                        │
+│  Backend won't start?                                                 │
+│    → Check MongoDB running                                           │
+│    → Check .env file                                                 │
+│    → npm install again                                               │
+│                                                                        │
+│  Frontend won't start?                                                │
+│    → Check port 3000 free                                            │
+│    → npm cache clean --force                                         │
+│    → npm install again                                               │
+│                                                                        │
+│  Login fails?                                                         │
+│    → Run: npm run seed (in backend)                                 │
+│                                                                        │
+│  Batch upload fails?                                                  │
+│    → Check file formats (PDF/TXT/JSON)                               │
+│    → Check model answer uploaded                                     │
+│    → Check file sizes < 50MB                                         │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+╔════════════════════════════════════════════════════════════════════════╗
+║                                                                        ║
+║  READY TO GO?                                                          ║
+║                                                                        ║
+║  Just run:  bash start.sh                                             ║
+║                                                                        ║
+║  Then:      http://localhost:3000                                     ║
+║                                                                        ║
+║  Login:     teacher@test.com / teacher123                             ║
+║                                                                        ║
+║  Start:     Try Batch Upload with your answer files                   ║
+║                                                                        ║
+║  That's it! You're all set. 🚀                                        ║
+║                                                                        ║
+╚════════════════════════════════════════════════════════════════════════╝
