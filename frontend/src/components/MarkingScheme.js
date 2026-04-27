@@ -160,13 +160,20 @@ const MarkingScheme = () => {
   };
 
   const handleEdit = (scheme) => {
+    const safeQuestions = Array.isArray(scheme.questions) ? scheme.questions : [];
+    const safeKeyConcepts = Array.isArray(scheme.keyConcepts) ? scheme.keyConcepts : [];
+    const safeMarkingLevels = Array.isArray(scheme.markingLevels) ? scheme.markingLevels : [];
+    const safeCommonMistakes = Array.isArray(scheme.commonMistakes) ? scheme.commonMistakes : [];
+    const safeBonusMarks = Array.isArray(scheme.bonusMarks) ? scheme.bonusMarks : [];
+
     setFormData({
-      questionText: scheme.questionText,
-      description: scheme.description,
-      keyConcepts: scheme.keyConcepts || [],
-      markingLevels: scheme.markingLevels || [],
-      commonMistakes: scheme.commonMistakes || [],
-      bonusMarks: scheme.bonusMarks || []
+      questionText: scheme.questionText || '',
+      description: scheme.description || 'Standard marking scheme',
+      questions: safeQuestions,
+      keyConcepts: safeKeyConcepts,
+      markingLevels: safeMarkingLevels,
+      commonMistakes: safeCommonMistakes,
+      bonusMarks: safeBonusMarks
     });
     setEditingId(scheme._id);
     setShowForm(true);

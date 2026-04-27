@@ -58,10 +58,32 @@ const markingSchemeSchema = new mongoose.Schema({
       type: String,
       trim: true
     },
+    synonyms: [{
+      type: String,
+      trim: true
+    }],
+    depthLevels: {
+      mention: { type: Number, default: 1, min: 0 },
+      explanation: { type: Number, default: 2, min: 0 },
+      linkage: { type: Number, default: 3, min: 0 }
+    },
     isRequired: {
       type: Boolean,
       default: false
     }
+  }],
+
+  // Concept-first strict rubric (human-like evidence scoring)
+  conceptFirstEnabled: {
+    type: Boolean,
+    default: false
+  },
+
+  criticalErrors: [{
+    statement: { type: String, trim: true },
+    synonyms: [{ type: String, trim: true }],
+    penalty: { type: Number, default: 1, min: 0 },
+    explanation: { type: String, trim: true }
   }],
 
   // Marking levels (full marks, partial, low, zero)
@@ -131,6 +153,27 @@ markingSchemeSchema.virtual('rubricText').get(function() {
       rubric += `${i + 1}. ${concept.concept} (${concept.marks} marks)`;
       if (concept.isRequired) rubric += ' [REQUIRED]';
       if (concept.description) rubric += ` - ${concept.description}`;
+      if (concept.synonyms && concept.synonyms.length > 0) {
+        rubric += ` (synonyms: ${concept.synonyms.join(', ')})`;
+      }
+      if (concept.depthLevels) {
+        rubric += ` [depth: mention=${concept.depthLevels.mention || 1}, explanation=${concept.depthLevels.explanation || 2}, linkage=${concept.depthLevels.linkage || 3}]`;
+      }
+      rubric += '\n';
+    });
+    rubric += '\n';
+  }
+
+  if (this.conceptFirstEnabled) {
+    rubric += `Concept-First Mode: ENABLED (strict evidence-based scoring)\n\n`;
+  }
+
+  if (this.criticalErrors && this.criticalErrors.length > 0) {
+    rubric += `Critical Errors (penalize if present):\n`;
+    this.criticalErrors.forEach((error, i) => {
+      rubric += `${i + 1}. ${error.statement}`;
+      if (error.penalty > 0) rubric += ` (-${error.penalty} marks)`;
+      if (error.explanation) rubric += ` - ${error.explanation}`;
       rubric += '\n';
     });
     rubric += '\n';

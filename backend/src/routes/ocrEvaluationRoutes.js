@@ -18,9 +18,12 @@ const optionalAuth = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id || decoded._id).select('-password');
-      if (user) req.user = user;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+      const userId = decoded.userId || decoded.id || decoded._id;
+      if (userId) {
+        const user = await User.findById(userId).select('-password');
+        if (user) req.user = user;
+      }
     }
   } catch (err) {
     // Token invalid/expired — that's fine, just no user context

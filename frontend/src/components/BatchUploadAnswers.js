@@ -5,7 +5,10 @@ import TestSelector from './TestSelector';
 function BatchUploadAnswers() {
   const [files, setFiles] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isEvaluating, setIsEvaluating] = useState(false);
   const [results, setResults] = useState(null);
+  const [uploadSummary, setUploadSummary] = useState(null);
+  const [batchId, setBatchId] = useState('');
   const [error, setError] = useState('');
   const [progress, setProgress] = useState(0);
   const [maxScore, setMaxScore] = useState(100);
@@ -28,6 +31,8 @@ function BatchUploadAnswers() {
     setFiles(supported);
     setError('');
     setResults(null);
+    setUploadSummary(null);
+    setBatchId('');
   };
 
   // Handle batch upload
@@ -58,10 +63,10 @@ function BatchUploadAnswers() {
       formData.append('maxScore', maxScore);
   formData.append('testId', selectedTestId);
 
-      console.log(`📤 Uploading ${files.length} files for batch evaluation...`);
+  console.log(`📤 Uploading ${files.length} files for batch upload...`);
       console.log(`📋 Files to upload:`, files.map(f => f.name));
 
-      const response = await axiosInstance.post('/batch-upload-answers', formData, {
+  const response = await axiosInstance.post('/batch-upload-answers/upload', formData, {
         // Don't set Content-Type header - let axios handle it with FormData
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
@@ -75,7 +80,8 @@ function BatchUploadAnswers() {
       console.log(`✅ Server response:`, response.data);
 
       if (response.data.success) {
-        setResults(response.data);
+        setUploadSummary(response.data);
+        setBatchId(response.data.batchId || '');
         setFiles([]);
         setError('');
       } else {
@@ -99,9 +105,43 @@ function BatchUploadAnswers() {
     }
   };
 
+  const handleBatchEvaluate = async () => {
+    if (!batchId) {
+      setError('Upload a batch first before evaluating');
+      return;
+    }
+
+    if (!selectedTestId) {
+      setError('Please select a test first');
+      return;
+    }
+
+    setIsEvaluating(true);
+    setError('');
+
+    try {
+      const response = await axiosInstance.post('/batch-upload-answers/evaluate', {
+        testId: selectedTestId,
+        batchId,
+        maxScore
+      });
+
+      if (response.data.success) {
+        setResults(response.data);
+      } else {
+        setError(response.data.error || 'Batch evaluation failed');
+      }
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.message || 'Batch evaluation failed';
+      setError(errorMsg);
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
+
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-      <h2>📁 Batch Upload & Evaluate Answers</h2>
+  <h2>📁 Batch Upload Answers</h2>
 
   <TestSelector onChange={setSelectedTestId} allowCreate={false} />
       
@@ -116,8 +156,8 @@ function BatchUploadAnswers() {
         <strong>How it works:</strong>
         <ol style={{ marginTop: '10px' }}>
           <li>Select a folder with answer files (PDF, TXT, or JSON)</li>
-          <li>System processes each file one-by-one</li>
-          <li>For each file: extract text → embed → query vector DB → LLM evaluate</li>
+          <li>Upload stores all student answers</li>
+          <li>Click Evaluate to score using the marking scheme/model answer</li>
           <li>Results show score, matched concepts, missing concepts, feedback</li>
           <li>All results saved to database for later review</li>
         </ol>
@@ -217,7 +257,7 @@ function BatchUploadAnswers() {
               fontWeight: 'bold'
             }}
           >
-            {isProcessing ? `Processing... (${progress}%)` : 'Upload & Process'}
+            {isProcessing ? `Uploading... (${progress}%)` : 'Upload Only'}
           </button>
 
           {/* Progress Bar */}
@@ -246,6 +286,55 @@ function BatchUploadAnswers() {
       )}
 
       {/* Results */}
+      {uploadSummary && !results && (
+        <div style={{
+          backgroundColor: '#e3f2fd',
+          padding: '15px',
+          borderRadius: '5px',
+          marginBottom: '20px'
+        }}>
+          <h3 style={{ marginTop: 0 }}>📦 Batch Uploaded</h3>
+          <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid #ddd' }}>
+                <td><strong>Total Files:</strong></td>
+                <td>{uploadSummary.summary.totalFiles}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #ddd' }}>
+                <td><strong>Uploaded:</strong></td>
+                <td>{uploadSummary.summary.uploadedFiles} ✓</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #ddd' }}>
+                <td><strong>Failed:</strong></td>
+                <td>{uploadSummary.summary.failedFiles}</td>
+              </tr>
+              <tr>
+                <td><strong>Total Time:</strong></td>
+                <td>{uploadSummary.summary.totalTime.toFixed(1)} seconds</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <button
+            onClick={handleBatchEvaluate}
+            disabled={isEvaluating}
+            style={{
+              marginTop: '15px',
+              padding: '10px 20px',
+              backgroundColor: isEvaluating ? '#ccc' : '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: isEvaluating ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}
+          >
+            {isEvaluating ? 'Evaluating...' : 'Evaluate Batch'}
+          </button>
+        </div>
+      )}
+
       {results && (
         <div>
           {/* Summary */}
@@ -443,6 +532,8 @@ function BatchUploadAnswers() {
               setResults(null);
               setFiles([]);
               setError('');
+              setUploadSummary(null);
+              setBatchId('');
             }}
             style={{
               marginTop: '20px',

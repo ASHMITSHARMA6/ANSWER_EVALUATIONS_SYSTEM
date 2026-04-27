@@ -22,6 +22,7 @@ const ocrEvaluationRoutes = require('./routes/ocrEvaluationRoutes');
 const ragRoutes = require('./routes/ragRoutes');
 const materialLibraryRoutes = require('./routes/materialLibrary');
 const questionPaperRoutes = require('./routes/questionPaper');
+const knowledgeGraphRoutes = require('./routes/knowledgeGraph');
 
 connectDB();
 
@@ -50,6 +51,7 @@ app.use('/api/extract-pdf', extractPdfRoutes);
 app.use('/api', batchUploadAnswersRoutes);
 app.use('/api/material-library', materialLibraryRoutes);
 app.use('/api/question-paper', questionPaperRoutes);
+app.use('/api/knowledge-graph', knowledgeGraphRoutes);
 
 // OCR & Evaluation Routes (open access)
 app.use('/api/ocr', ocrEvaluationRoutes);

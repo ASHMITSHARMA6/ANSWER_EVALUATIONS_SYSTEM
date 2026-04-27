@@ -8,6 +8,11 @@ const formatDate = (d) => {
   return dt.toLocaleString();
 };
 
+const numOr = (value, fallback = 0) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+};
+
 const ResultsView = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -375,17 +380,32 @@ const ResultsView = () => {
                       {formatDate(r.createdAt)}
                     </p>
                     {r.feedback && <p style={{ margin: '3px 0', fontSize: '11px' }}>{r.feedback.substring(0, 80)}...</p>}
+                    {r.marksBreakdown && (
+                      <p style={{ margin: '3px 0', fontSize: '11px', color: '#4b5563' }}>
+                        Coverage: {(numOr(r.marksBreakdown.completion_ratio, 0) * 100).toFixed(0)}% ·
+                        Depth: {(numOr(r.marksBreakdown.depth_quality_ratio, 0) * 100).toFixed(0)}% ·
+                        +Expr: {numOr(r.marksBreakdown.human_expression_bonus, 0).toFixed(1)} ·
+                        -Missing: {numOr(r.marksBreakdown.missing_concept_penalty, 0).toFixed(1)} ·
+                        -Critical: {numOr(r.marksBreakdown.raw_penalty, 0).toFixed(1)}
+                      </p>
+                    )}
                   </div>
                   <div style={{ textAlign: 'right', marginRight: '15px' }}>
                     <div style={{
                       fontSize: '16px',
                       fontWeight: 'bold',
-                      color: r.marks >= r.maxMarks * 0.7 ? '#27ae60' : r.marks >= r.maxMarks * 0.5 ? '#f39c12' : '#e74c3c'
+                      color: numOr(r.marks, numOr(r.score, 0)) >= numOr(r.maxMarks, numOr(r.maxScore, 0)) * 0.7
+                        ? '#27ae60'
+                        : numOr(r.marks, numOr(r.score, 0)) >= numOr(r.maxMarks, numOr(r.maxScore, 0)) * 0.5
+                          ? '#f39c12'
+                          : '#e74c3c'
                     }}>
-                      {r.marks}/{r.maxMarks}
+                      {numOr(r.marks, numOr(r.score, 0))}/{numOr(r.maxMarks, numOr(r.maxScore, 0))}
                     </div>
                     <div style={{ fontSize: '11px', color: '#666' }}>
-                      {((r.marks / r.maxMarks) * 100).toFixed(0)}%
+                      {numOr(r.maxMarks, numOr(r.maxScore, 0)) > 0
+                        ? ((numOr(r.marks, numOr(r.score, 0)) / numOr(r.maxMarks, numOr(r.maxScore, 0))) * 100).toFixed(0)
+                        : 0}%
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '5px' }}>

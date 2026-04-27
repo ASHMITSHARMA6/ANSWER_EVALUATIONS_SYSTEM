@@ -41,6 +41,13 @@ const MaterialLibrary = () => {
     return '';
   };
 
+  const resolveMaterialTitle = (material) => {
+    if (material.displayTitle) return material.displayTitle;
+    const testName = resolveTestName(material);
+    if (testName) return `Material for ${testName}`;
+    return material.title || 'Canonical Material';
+  };
+
   const fetchReferences = async (testId) => {
     if (!testId) {
       setReferences([]);
@@ -89,6 +96,8 @@ const MaterialLibrary = () => {
       setMessage('Selected materials referenced successfully');
       setIsError(false);
       await fetchReferences(selectedTestId);
+      localStorage.setItem('materialReferencesUpdatedAt', Date.now().toString());
+      window.dispatchEvent(new Event('material-references-updated'));
     } catch (err) {
       setMessage(err?.response?.data?.error || err?.message || 'Failed to reference material');
       setIsError(true);
@@ -164,7 +173,7 @@ const MaterialLibrary = () => {
                       />
                       <div>
                         <h3 style={{ margin: '0 0 6px 0' }}>
-                          {resolveTestName(m) ? `Material for ${resolveTestName(m)}` : (m.title || 'Canonical Material')}
+                          {resolveMaterialTitle(m)}
                         </h3>
                         <p style={{ margin: 0, color: '#666', fontSize: '13px' }}>
                           {m.contentLength || 0} characters • {m.preview ? `${m.preview}...` : 'No preview'}

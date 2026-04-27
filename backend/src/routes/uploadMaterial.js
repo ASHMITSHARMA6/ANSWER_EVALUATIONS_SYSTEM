@@ -10,13 +10,18 @@ const vectorDbService = require('../services/vectorDbService');
 const embeddingService = require('../services/embeddingService');
 const chunkingService = require('../services/chunkingService');
 const { getOrCreateCanonicalMaterial } = require('../services/canonicalMaterialService');
+const knowledgeGraphService = require('../services/knowledgeGraphService');
+const cacheService = require('../services/cacheService');
 
 const router = express.Router();
 
-// Multer: memory storage for PDF (max 10MB). Used only for multipart requests.
+const MATERIAL_UPLOAD_MAX_MB = 25;
+const MATERIAL_UPLOAD_MAX_BYTES = MATERIAL_UPLOAD_MAX_MB * 1024 * 1024;
+
+// Multer: memory storage for PDF (max 25MB). Used only for multipart requests.
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: MATERIAL_UPLOAD_MAX_BYTES },
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
       cb(null, true);
@@ -31,7 +36,14 @@ function maybeMulter(req, res, next) {
   const ct = req.headers['content-type'] || '';
   if (ct.includes('multipart/form-data')) {
     return upload(req, res, (err) => {
-      if (err) return res.status(400).json({ error: err.message || 'File upload failed' });
+      if (err) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            error: `PDF file is too large. Maximum allowed size is ${MATERIAL_UPLOAD_MAX_MB}MB.`
+          });
+        }
+        return res.status(400).json({ error: err.message || 'File upload failed' });
+      }
       next();
     });
   }
@@ -85,10 +97,14 @@ router.post('/', auth, maybeMulter, async (req, res) => {
     }
 
     // Step 2: Store canonical material and material reference
+    const inferredTitle = req.file?.originalname
+      ? `Material: ${req.file.originalname}`
+      : (req.body?.title ? String(req.body.title).trim() : `Material for test ${testId}`);
+
     const canonical = await getOrCreateCanonicalMaterial({
       teacherId: req.user._id,
       content,
-      title: `Material for test ${testId}`
+      title: inferredTitle
     });
 
     const material = await StudyMaterial.create({
@@ -135,6 +151,10 @@ router.post('/', auth, maybeMulter, async (req, res) => {
       }))
     );
 
+    // Invalidate caches tied to this test's material
+    cacheService.deleteByPrefix(`qgen:retrieval:${testId}:`);
+    cacheService.deleteByPrefix(`rag:retrieve:${testId}:`);
+
     // Step 6: Store chunk metadata in MongoDB for reference
     for (let i = 0; i < filteredChunks.length; i++) {
       await Chunk.create({
@@ -149,6 +169,19 @@ router.post('/', auth, maybeMulter, async (req, res) => {
         isAnswer: false,
         userId: req.user._id
       });
+    }
+
+    // Step 7: Add knowledge graph concepts (non-blocking)
+    try {
+      await knowledgeGraphService.addConceptsFromText({
+        text: content,
+        testId,
+        sourceType: 'material',
+        sourceId: material._id,
+        createdBy: req.user._id
+      });
+    } catch (kgErr) {
+      console.warn('[Upload Material] Knowledge graph extraction skipped:', kgErr.message);
     }
 
     const stats = chunkingService.getChunkStats(filteredChunks);

@@ -96,6 +96,11 @@ Start here based on your interest:
 - Lists missing concepts from model answer
 - Detailed feedback on scoring
 
+✅ **Knowledge Graph (New)**
+- Extracts key concepts from study material and model answers
+- Links related concepts into a graph for explainable evaluation
+- Exposes API endpoints for concept search and related-concept lookup
+
 ✅ **Deterministic Scoring**
 - Same answer = Same score (temperature=0)
 - Reproducible results
@@ -141,6 +146,7 @@ Start here based on your interest:
 │  │  • embeddingService.js - OpenAI embeddings          │ │
 │  │  • chunkingService.js - Text chunking               │ │
 │  │  • aiService.js - LLM evaluation with retrieval     │ │
+│  │  • knowledgeGraphService.js - Concepts & relations  │ │
 │  └─────────────────────────────────────────────────────┘ │
 │                                                           │
 │  ┌────────────────────┬──────────────────────────────┐  │
@@ -152,6 +158,8 @@ Start here based on your interest:
 │  │ (1536-dim)         │ • ModelAnswers               │  │
 │  │ (cosine sim)       │ • StudentAnswers             │  │
 │  │                    │ • EvaluationResults          │  │
+│  │                    │ • KnowledgeNodes             │  │
+│  │                    │ • KnowledgeEdges             │  │
 │  │                    │ • Users                      │  │
 │  └────────────────────┴──────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
@@ -185,6 +193,18 @@ POST /api/evaluate-answer ⭐ CORE
   → Build evaluation prompt
   → LLM scores with strict JSON output
   → Returns: score, matched_concepts, missing_concepts, feedback
+
+GET /api/knowledge-graph/summary
+  → Node/edge counts for a test
+
+GET /api/knowledge-graph/concepts
+  → Search concepts extracted from material/model answers
+
+GET /api/knowledge-graph/related
+  → Related concepts for a given concept
+
+POST /api/knowledge-graph/extract
+  → Manually extract concepts from text
 
 GET /api/results
   → All evaluations with full details

@@ -16,6 +16,8 @@
 const axios = require('axios');
 const embeddingService = require('./embeddingService');
 const vectorDbService = require('./vectorDbService');
+const knowledgeGraphService = require('./knowledgeGraphService');
+const cacheService = require('./cacheService');
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
@@ -27,6 +29,7 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MAX_CHUNK_CHARS = 800;
 // Max total context characters assembled from all chunks
 const MAX_CONTEXT_CHARS = 4000;
+const RAG_RETRIEVAL_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 // ── System prompts per mode ──────────────────────────────────────────────────
 
@@ -59,23 +62,88 @@ Return your evaluation in this JSON format:
  * Retrieve the top-K most relevant chunks from the vector DB.
  *
  * @param {string} query   - Natural language query
- * @param {number} [topK=5] - How many chunks to retrieve
+ * @param {number|Object} [optionsOrTopK=5]
+ * @param {number} [optionsOrTopK.topK=5]       - How many chunks to retrieve
+ * @param {string} [optionsOrTopK.testId]       - Optional test scope
+ * @param {boolean} [optionsOrTopK.useGraph=false] - Expand query via knowledge graph
+ * @param {number} [optionsOrTopK.graphLimit=6] - Related concepts to expand with
+ * @param {number} [optionsOrTopK.graphWeight=0.9] - Score weight for graph-expanded hits
  * @returns {Promise<Array<{score:number, text:string, source:string, section:string}>>}
  */
-async function retrieveContext(query, topK = 5) {
+async function retrieveContext(query, optionsOrTopK = 5) {
+  const options = typeof optionsOrTopK === 'number'
+    ? { topK: optionsOrTopK }
+    : (optionsOrTopK || {});
+  const {
+    topK = 5,
+    testId = null,
+    useGraph = false,
+    graphLimit = 6,
+    graphWeight = 0.9
+  } = options;
+
+  const cacheKey = `rag:retrieve:${testId || 'all'}:${query}:${topK}:${useGraph ? 1 : 0}:${graphLimit}:${graphWeight}`;
+  const cached = cacheService.get(cacheKey);
+  if (cached) return cached;
+
+  const baseTopK = Math.max(1, Number(topK) || 5);
+  const expansionTopK = Math.max(2, Math.ceil(baseTopK / 2));
+
   // 1. Embed the query
   const queryVector = await embeddingService.generateEmbedding(query);
 
-  // 2. Search material index
-  const results = vectorDbService.queryMaterial(queryVector, topK);
+  // 2. Search material index (base retrieval)
+  const baseResults = vectorDbService.queryMaterial(queryVector, baseTopK, testId);
 
-  // 3. Truncate individual chunks to MAX_CHUNK_CHARS
-  return results.map((r) => ({
+  const merged = new Map();
+  const pushResult = (result, score, fromGraph = false) => {
+    const key = `${result.source || 'unknown'}:${result.index}`;
+    const existing = merged.get(key);
+    if (!existing || score > existing.score) {
+      merged.set(key, {
+        ...result,
+        score,
+        fromGraph
+      });
+    }
+  };
+
+  baseResults.forEach((r) => pushResult(r, r.score, false));
+
+  // 3. Optional knowledge-graph expansion
+  if (useGraph && testId) {
+    const related = await knowledgeGraphService.getRelatedConceptsForText({
+      text: query,
+      testId,
+      limit: graphLimit
+    });
+
+    if (related.length > 0) {
+      const expansions = related.map((node) => `${query} ${node.name}`.trim());
+      const embeddings = await embeddingService.generateBatchEmbeddings(expansions);
+
+      embeddings.forEach((embedding, idx) => {
+        const hits = vectorDbService.queryMaterial(embedding, expansionTopK, testId);
+        hits.forEach((hit) => pushResult(hit, hit.score * graphWeight, true));
+      });
+    }
+  }
+
+  const ranked = Array.from(merged.values())
+    .sort((a, b) => b.score - a.score)
+    .slice(0, baseTopK);
+
+  // 4. Truncate individual chunks to MAX_CHUNK_CHARS
+  const response = ranked.map((r) => ({
     score: r.score,
     text: r.text.length > MAX_CHUNK_CHARS ? r.text.slice(0, MAX_CHUNK_CHARS) + '…' : r.text,
     source: r.source || 'unknown',
     section: r.section || 'general',
   }));
+
+  cacheService.set(cacheKey, response, RAG_RETRIEVAL_CACHE_TTL_MS);
+
+  return response;
 }
 
 /**
@@ -144,12 +212,26 @@ async function callLLM(systemPrompt, userPrompt) {
  * @returns {Promise<{answer:string, sources:Array, model:string, prompt?:string}>}
  */
 async function query(query, options = {}) {
-  const { topK = 5, mode = 'qa', debug = false } = options;
+  const {
+    topK = 5,
+    mode = 'qa',
+    debug = false,
+    testId = null,
+    useGraph = false,
+    graphLimit = 6,
+    graphWeight = 0.9
+  } = options;
 
   console.log(`[RAG] query="${query.slice(0, 80)}…" mode=${mode} topK=${topK}`);
 
   // 1. Retrieve
-  const retrieved = await retrieveContext(query, topK);
+  const retrieved = await retrieveContext(query, {
+    topK,
+    testId,
+    useGraph,
+    graphLimit,
+    graphWeight
+  });
   console.log(`[RAG] Retrieved ${retrieved.length} chunks (top score=${retrieved[0]?.score?.toFixed(3) || 'n/a'})`);
 
   // 2. Build prompt
@@ -199,10 +281,17 @@ async function query(query, options = {}) {
  * Returns the same shape as evaluationService.evaluateAnswer() so callers
  * can use it as a drop-in alternative.
  */
-async function evaluateWithRAG(studentAnswer, question = '', topK = 5) {
+async function evaluateWithRAG(studentAnswer, question = '', topK = 5, options = {}) {
   const result = await query(
     `Student answer to evaluate:\n${studentAnswer}\n\nQuestion: ${question}`,
-    { topK, mode: 'evaluate' }
+    {
+      topK,
+      mode: 'evaluate',
+      testId: options.testId || null,
+      useGraph: !!options.useGraph,
+      graphLimit: options.graphLimit || 6,
+      graphWeight: options.graphWeight || 0.9
+    }
   );
 
   // Try to parse JSON from the answer

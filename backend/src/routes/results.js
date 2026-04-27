@@ -26,6 +26,7 @@ router.get('/', auth, async (req, res) => {
           if (!grouped[result.batchId]) {
             grouped[result.batchId] = {
               batchId: result.batchId,
+              batchName: result.batchName || null,
               totalStudents: 0,
               averageScore: 0,
               highestScore: 0,
@@ -35,6 +36,9 @@ router.get('/', auth, async (req, res) => {
             };
           }
           grouped[result.batchId].results.push(result);
+          if (!grouped[result.batchId].batchName && result.batchName) {
+            grouped[result.batchId].batchName = result.batchName;
+          }
         } else {
           ungrouped.push(result);
         }
@@ -43,10 +47,14 @@ router.get('/', auth, async (req, res) => {
       // Calculate batch statistics
       Object.keys(grouped).forEach(batchId => {
         const batch = grouped[batchId];
+        const scoreValues = batch.results.map(r => {
+          const value = Number(r.marks ?? r.score ?? 0);
+          return Number.isFinite(value) ? value : 0;
+        });
         batch.totalStudents = batch.results.length;
-        batch.averageScore = batch.results.reduce((sum, r) => sum + (r.marks || 0), 0) / batch.totalStudents;
-        batch.highestScore = Math.max(...batch.results.map(r => r.marks || 0));
-        batch.lowestScore = Math.min(...batch.results.map(r => r.marks || 0));
+        batch.averageScore = scoreValues.reduce((sum, v) => sum + v, 0) / batch.totalStudents;
+        batch.highestScore = Math.max(...scoreValues);
+        batch.lowestScore = Math.min(...scoreValues);
       });
 
       res.json({

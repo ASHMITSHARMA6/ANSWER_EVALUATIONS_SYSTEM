@@ -10,12 +10,13 @@ const ragService = require('../services/ragService');
 
 /**
  * POST /api/rag/query
- * Body: { query: string, topK?: number, mode?: 'qa'|'summarize'|'evaluate', debug?: boolean }
+ * Body: { query: string, topK?: number, mode?: 'qa'|'summarize'|'evaluate', debug?: boolean,
+ *         testId?: string, useGraph?: boolean, graphLimit?: number, graphWeight?: number }
  * Returns: { answer, sources, model, prompt? }
  */
 router.post('/query', async (req, res) => {
   try {
-    const { query, topK, mode, debug } = req.body;
+    const { query, topK, mode, debug, testId, useGraph, graphLimit, graphWeight } = req.body;
 
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return res.status(400).json({ error: 'A non-empty "query" string is required' });
@@ -25,6 +26,10 @@ router.post('/query', async (req, res) => {
       topK: topK || 5,
       mode: mode || 'qa',
       debug: !!debug,
+      testId: testId || null,
+      useGraph: !!useGraph,
+      graphLimit: graphLimit || 6,
+      graphWeight: graphWeight || 0.9
     });
 
     res.json({ success: true, ...result });
@@ -36,7 +41,8 @@ router.post('/query', async (req, res) => {
 
 /**
  * POST /api/rag/evaluate
- * Body: { studentAnswer: string, question?: string, topK?: number }
+ * Body: { studentAnswer: string, question?: string, topK?: number,
+ *         testId?: string, useGraph?: boolean, graphLimit?: number, graphWeight?: number }
  * Returns: { score, matchedConcepts, missingConcepts, feedback, ragSources }
  *
  * This is an ALTERNATIVE evaluation path that uses uploaded material
@@ -44,7 +50,7 @@ router.post('/query', async (req, res) => {
  */
 router.post('/evaluate', async (req, res) => {
   try {
-    const { studentAnswer, question, topK } = req.body;
+    const { studentAnswer, question, topK, testId, useGraph, graphLimit, graphWeight } = req.body;
 
     if (!studentAnswer || typeof studentAnswer !== 'string' || studentAnswer.trim().length === 0) {
       return res.status(400).json({ error: 'A non-empty "studentAnswer" string is required' });
@@ -53,7 +59,13 @@ router.post('/evaluate', async (req, res) => {
     const result = await ragService.evaluateWithRAG(
       studentAnswer.trim(),
       (question || '').trim(),
-      topK || 5
+      topK || 5,
+      {
+        testId: testId || null,
+        useGraph: !!useGraph,
+        graphLimit: graphLimit || 6,
+        graphWeight: graphWeight || 0.9
+      }
     );
 
     res.json({ success: true, ...result });
@@ -65,18 +77,24 @@ router.post('/evaluate', async (req, res) => {
 
 /**
  * POST /api/rag/retrieve
- * Body: { query: string, topK?: number }
+ * Body: { query: string, topK?: number, testId?: string, useGraph?: boolean, graphLimit?: number, graphWeight?: number }
  * Returns: { sources: [...] }  (retrieval only, no LLM call)
  */
 router.post('/retrieve', async (req, res) => {
   try {
-    const { query, topK } = req.body;
+    const { query, topK, testId, useGraph, graphLimit, graphWeight } = req.body;
 
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return res.status(400).json({ error: 'A non-empty "query" string is required' });
     }
 
-    const sources = await ragService.retrieveContext(query.trim(), topK || 5);
+    const sources = await ragService.retrieveContext(query.trim(), {
+      topK: topK || 5,
+      testId: testId || null,
+      useGraph: !!useGraph,
+      graphLimit: graphLimit || 6,
+      graphWeight: graphWeight || 0.9
+    });
 
     res.json({ success: true, count: sources.length, sources });
   } catch (error) {

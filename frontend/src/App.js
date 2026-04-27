@@ -8,6 +8,7 @@ import MaterialLibrary from './components/MaterialLibrary';
 import QuestionGenerator from './components/QuestionGenerator';
 import UploadModelAnswer from './components/UploadModelAnswer';
 import UploadStudentAnswer from './components/UploadStudentAnswer';
+import BatchUploadAnswers from './components/BatchUploadAnswers';
 import Evaluation from './components/Evaluation';
 import ResultsView from './components/ResultsView';
 import MarkingScheme from './components/MarkingScheme';
@@ -47,6 +48,7 @@ function App() {
           <Route path="/generate-questions" element={<QuestionGenerator />} />
           <Route path="/upload-model-answer" element={<UploadModelAnswer />} />
           <Route path="/upload-student-answer" element={<UploadStudentAnswer />} />
+          <Route path="/batch-upload-answers" element={<BatchUploadAnswers />} />
           <Route path="/ocr-handwritten" element={<OCRUploadHandwritten />} />
           <Route path="/marking-schemes" element={<MarkingScheme />} />
           <Route path="/evaluate" element={<Evaluation />} />

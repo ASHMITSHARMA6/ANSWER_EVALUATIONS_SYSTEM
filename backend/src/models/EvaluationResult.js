@@ -24,6 +24,7 @@ const evaluationResultSchema = new mongoose.Schema({
     enum: ['vector_retrieval_llm', 'legacy_direct_llm', 'fallback_keyword'],
     default: 'vector_retrieval_llm'
   },
+  graphConcepts: [{ type: String }],
 
   // Marking scheme integration
   markingSchemeId: { 

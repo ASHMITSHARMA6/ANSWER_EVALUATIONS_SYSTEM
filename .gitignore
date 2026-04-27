@@ -1,2 +1,4 @@
 frontend_run.log
 *.log
+*.md
+!README.md

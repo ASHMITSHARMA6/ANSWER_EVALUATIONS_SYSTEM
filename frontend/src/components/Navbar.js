@@ -16,6 +16,7 @@ const Navbar = ({ onLogout }) => {
           <Link to="/generate-questions" className={isActive('/generate-questions')}>Questions</Link>
           <Link to="/upload-model-answer" className={isActive('/upload-model-answer')}>Model Answer</Link>
           <Link to="/upload-student-answer" className={isActive('/upload-student-answer')}>Student Answer</Link>
+          <Link to="/batch-upload-answers" className={isActive('/batch-upload-answers')}>Batch Upload</Link>
           <Link to="/marking-schemes" className={isActive('/marking-schemes')}>Marking Schemes</Link>
           <Link to="/evaluate" className={isActive('/evaluate')}>Evaluate</Link>
           <Link to="/results" className={isActive('/results')}>Results</Link>

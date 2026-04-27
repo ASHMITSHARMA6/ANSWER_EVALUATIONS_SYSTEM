@@ -1,10 +1,10 @@
 /**
- * Batch Upload & Evaluate Student Answers
+ * Batch Upload Student Answers (upload-only)
  * 
  * Feature: Upload a folder of answer files (PDF/TXT/DOCX/JSON)
- * Process: One-by-one evaluation with real-time progress
+ * Process: Upload files now, evaluate later on demand
  * 
- * POST /api/batch-upload-answers
+ * POST /api/batch-upload-answers/upload
  * Request: FormData with files[] array
  * Response: { success, totalFiles, results: [{filename, score, matched, missing, feedback}] }
  */
@@ -15,14 +15,57 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
+const ocrService = require('../services/ocrService');
 const authMiddleware = require('../middleware/auth');
 const StudentAnswer = require('../models/StudentAnswer');
 const ModelAnswer = require('../models/ModelAnswer');
 const EvaluationResult = require('../models/EvaluationResult');
+const MarkingScheme = require('../models/MarkingScheme');
 const vectorDbService = require('../services/vectorDbService');
 const embeddingService = require('../services/embeddingService');
 const chunkingService = require('../services/chunkingService');
 const aiService = require('../services/aiService');
+
+function buildRubricPayload(markingScheme, fallbackRubric, maxMarks) {
+  if (!markingScheme) return fallbackRubric;
+
+  const concepts = Array.isArray(markingScheme.keyConcepts) ? markingScheme.keyConcepts : [];
+  const criticalErrors = Array.isArray(markingScheme.criticalErrors) ? markingScheme.criticalErrors : [];
+
+  const conceptFirst = {
+    type: 'concept_first_v1',
+    text: markingScheme.rubricText || fallbackRubric || 'Standard rubric',
+    maxMarks: Number(maxMarks) || Number(markingScheme.maxMarks) || 10,
+    requiredConcepts: concepts.map((item) => ({
+      concept: item.concept,
+      weight: Number(item.marks) || 1,
+      required: !!item.isRequired,
+      synonyms: Array.isArray(item.synonyms) ? item.synonyms : [],
+      depthLevels: {
+        mention: Number(item?.depthLevels?.mention) || 1,
+        explanation: Number(item?.depthLevels?.explanation) || 2,
+        linkage: Number(item?.depthLevels?.linkage) || 3
+      }
+    })),
+    criticalErrors: criticalErrors.map((err) => ({
+      statement: err.statement,
+      synonyms: Array.isArray(err.synonyms) ? err.synonyms : [],
+      penalty: Number(err.penalty) || 1,
+      explanation: err.explanation || ''
+    }))
+  };
+
+  const hasAdvancedConceptFields = conceptFirst.requiredConcepts.some((c) =>
+    (c.synonyms && c.synonyms.length > 0) ||
+    (c.depthLevels && (c.depthLevels.explanation > 1 || c.depthLevels.linkage > 1))
+  );
+
+  if (markingScheme.conceptFirstEnabled || hasAdvancedConceptFields || conceptFirst.criticalErrors.length > 0) {
+    return conceptFirst;
+  }
+
+  return markingScheme.rubricText || fallbackRubric;
+}
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -62,10 +105,22 @@ const extractTextFromFile = async (filePath) => {
     try {
       const buffer = fs.readFileSync(filePath);
       const data = await pdfParse(buffer);
-      return data.text;
+      const extracted = data.text || '';
+      if (extracted.trim().length >= 50) {
+        return extracted;
+      }
+      console.log('[Batch] PDF text layer too short, running OCR fallback...');
     } catch (error) {
       console.error(`[Batch] Error parsing PDF: ${error.message}`);
-      throw new Error(`Failed to parse PDF: ${error.message}`);
+      console.log('[Batch] Falling back to OCR for PDF...');
+    }
+
+    try {
+      const ocrText = await ocrService.extractText(filePath);
+      return ocrText;
+    } catch (ocrError) {
+      console.error(`[Batch] OCR failed: ${ocrError.message}`);
+      throw new Error(`Failed to parse PDF: ${ocrError.message}`);
     }
   }
   
@@ -135,15 +190,14 @@ const extractTextFromFile = async (filePath) => {
  *     }
  *   }
  */
-router.post('/batch-upload-answers', authMiddleware, upload.array('files', 100), async (req, res) => {
+const handleBatchUploadOnly = async (req, res) => {
   const startTime = Date.now();
   const teacherId = req.user.id;
   const { testId } = req.body || {};
-  const maxScore = parseInt(req.body.maxScore) || 100;
   const batchId = `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const batchName = req.body.batchName || `Batch ${new Date().toLocaleString()}`;
-  
-  console.log(`[Batch Upload] Starting batch evaluation for teacher ${teacherId}`);
+
+  console.log(`[Batch Upload] Starting batch upload for teacher ${teacherId}`);
   console.log(`[Batch Upload] Batch ID: ${batchId}`);
   console.log(`[Batch Upload] Files received: ${req.files.length}`);
 
@@ -157,35 +211,193 @@ router.post('/batch-upload-answers', authMiddleware, upload.array('files', 100),
       error: 'No files uploaded'
     });
   }
-  
+
   try {
-    // Verify model answer exists
-    console.log(`[Batch Upload] Looking for model answer for teacher: ${teacherId}`);
-    const modelAnswer = await ModelAnswer.findOne({ teacherId, testId })
-      .sort({ createdAt: -1 });
-    
-    if (!modelAnswer) {
-      console.error(`[Batch Upload] ❌ No model answer found for teacher: ${teacherId}`);
-      return res.status(400).json({
-        success: false,
-        error: '❌ Please upload a Model Answer first before batch uploading student answers'
-      });
-    }
-    
-    console.log(`[Batch Upload] ✅ Model answer found for evaluation`);
-    
-  console.log(`[Batch Upload] Model answer found: "${(modelAnswer.questionText || '').substring(0, 50)}..."`);
-    
     const results = [];
-    let processedCount = 0;
+    let uploadedCount = 0;
     let failedCount = 0;
-    
-    // Process each file sequentially
+
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
       const fileStartTime = Date.now();
       const result = {
         filename: file.originalname,
+        status: 'uploaded',
+        studentAnswerId: null,
+        processingTime: 0,
+        error: null
+      };
+
+      try {
+        console.log(`[Batch Upload] Uploading file ${i + 1}/${req.files.length}: ${file.originalname}`);
+
+        const studentAnswerText = await extractTextFromFile(file.path);
+        if (!studentAnswerText || studentAnswerText.trim().length === 0) {
+          throw new Error('File contains no readable text');
+        }
+
+        const studentAnswer = await StudentAnswer.create({
+          teacherId,
+          testId,
+          studentName: file.originalname.replace(/\.[^/.]+$/, ''),
+          studentAnswer: studentAnswerText.substring(0, 5000),
+          originalFilename: file.originalname,
+          batchId,
+          batchName,
+          status: 'uploaded'
+        });
+
+        result.studentAnswerId = studentAnswer._id.toString();
+        result.processingTime = (Date.now() - fileStartTime) / 1000;
+        uploadedCount++;
+      } catch (error) {
+        console.error(`[Batch Upload] Error uploading ${file.originalname}: ${error.message}`);
+        result.status = 'failed';
+        result.error = error.message;
+        result.processingTime = (Date.now() - fileStartTime) / 1000;
+        failedCount++;
+      } finally {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (e) {
+          console.log(`[Batch Upload] Could not delete temp file: ${file.path}`);
+        }
+      }
+
+      results.push(result);
+    }
+
+    const summary = {
+      totalFiles: req.files.length,
+      uploadedFiles: uploadedCount,
+      failedFiles: failedCount,
+      totalTime: (Date.now() - startTime) / 1000
+    };
+
+    res.json({
+      success: true,
+      batchId,
+      batchName,
+      results,
+      summary
+    });
+  } catch (error) {
+    console.error(`[Batch Upload] Fatal error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+router.post('/batch-upload-answers/upload', authMiddleware, upload.array('files', 100), handleBatchUploadOnly);
+// Backward-compatible route
+router.post('/batch-upload-answers', authMiddleware, upload.array('files', 100), handleBatchUploadOnly);
+
+router.post('/batch-upload-answers/evaluate', authMiddleware, async (req, res) => {
+  const startTime = Date.now();
+  const teacherId = req.user.id;
+  const { testId, batchId } = req.body || {};
+  const maxScore = parseInt(req.body.maxScore) || 100;
+
+  if (!testId) {
+    return res.status(400).json({ success: false, error: 'Select a test before evaluating batch answers' });
+  }
+
+  try {
+    let resolvedBatchId = String(batchId || '').trim();
+    let autoDetectedBatch = false;
+
+    if (!resolvedBatchId) {
+      const latestPending = await StudentAnswer.findOne({
+        teacherId,
+        testId,
+        batchId: { $ne: null },
+        status: { $in: ['uploaded', 'failed'] }
+      })
+        .sort({ createdAt: -1 })
+        .select('batchId')
+        .lean();
+
+      if (latestPending?.batchId) {
+        resolvedBatchId = latestPending.batchId;
+        autoDetectedBatch = true;
+      } else {
+        const latestAnyBatch = await StudentAnswer.findOne({
+          teacherId,
+          testId,
+          batchId: { $ne: null }
+        })
+          .sort({ createdAt: -1 })
+          .select('batchId')
+          .lean();
+
+        if (latestAnyBatch?.batchId) {
+          resolvedBatchId = latestAnyBatch.batchId;
+          autoDetectedBatch = true;
+        }
+      }
+    }
+
+    if (!resolvedBatchId) {
+      return res.status(400).json({ success: false, error: 'No uploaded batch answers found for this test.' });
+    }
+
+    const modelAnswer = await ModelAnswer.findOne({ teacherId, testId }).sort({ createdAt: -1 });
+    if (!modelAnswer) {
+      return res.status(400).json({ success: false, error: 'Upload a model answer before batch evaluation' });
+    }
+
+    const initialStudentFilter = {
+      teacherId,
+      testId,
+      batchId: resolvedBatchId,
+      status: { $in: ['uploaded', 'failed'] }
+    };
+
+    let students = await StudentAnswer.find(initialStudentFilter).sort({ createdAt: 1 });
+    if (!students.length) {
+      students = await StudentAnswer.find({ teacherId, testId, batchId: resolvedBatchId }).sort({ createdAt: 1 });
+    }
+
+    if (!students.length) {
+      return res.status(400).json({ success: false, error: 'No uploaded answers found for this batch' });
+    }
+
+    const markingScheme = await MarkingScheme.findOne({
+      teacherId,
+      questionText: modelAnswer.questionText
+    });
+  const rubricPayload = buildRubricPayload(markingScheme, markingScheme ? markingScheme.rubricText : null, maxScore);
+
+    const modelChunks = chunkingService.chunkAnswerForEvaluation(
+      modelAnswer.modelAnswer,
+      modelAnswer._id.toString()
+    );
+    const filteredModelChunks = chunkingService.filterChunks(modelChunks, minLength = 10);
+    if (filteredModelChunks.length > 0) {
+      const modelChunkTexts = filteredModelChunks.map(chunk => chunk.text);
+      const modelEmbeddings = await embeddingService.generateBatchEmbeddings(modelChunkTexts);
+      vectorDbService.addAnswerEmbeddings(
+        modelEmbeddings,
+        filteredModelChunks.map((chunk) => ({
+          text: chunk.text,
+          questionId: modelAnswer._id.toString(),
+          maxScore,
+          testId
+        }))
+      );
+    }
+
+    const results = [];
+    let processedCount = 0;
+    let failedCount = 0;
+
+    for (let i = 0; i < students.length; i++) {
+      const student = students[i];
+      const fileStartTime = Date.now();
+      const result = {
+        filename: student.originalFilename || student.studentName,
         status: 'processing',
         score: null,
         maxScore,
@@ -197,158 +409,96 @@ router.post('/batch-upload-answers', authMiddleware, upload.array('files', 100),
         processingTime: 0,
         error: null
       };
-      
+
       try {
-        console.log(`[Batch Upload] Processing file ${i + 1}/${req.files.length}: ${file.originalname}`);
-        
-        // 1. Extract text from file
-        const studentAnswerText = await extractTextFromFile(file.path);
-        
-        if (!studentAnswerText || studentAnswerText.trim().length === 0) {
-          throw new Error('File contains no readable text');
-        }
-        
-        console.log(`[Batch Upload] Text extracted: ${studentAnswerText.length} chars`);
-        
-        // 2. Save student answer to database
-        const studentAnswer = await StudentAnswer.create({
-          teacherId,
-          testId,
-          studentName: file.originalname.replace(/\.[^/.]+$/, ''),
-          studentAnswer: studentAnswerText.substring(0, 5000)
-        });
-
-        console.log(`[Batch Upload] Student answer saved: ${studentAnswer._id}`);
-
-        // 3. Chunk model answer (if not already done)
-        const modelChunks = chunkingService.chunkAnswerForEvaluation(
-          modelAnswer.modelAnswer,
-          modelAnswer._id.toString()
-        );
-
-        console.log(`[Batch Upload] Model answer chunked: ${modelChunks.length} chunks`);
-
-        // 4. Generate embeddings for model chunks
-        const modelChunkTexts = modelChunks.map(chunk => chunk.text);
-        console.log(`[Batch Upload] Generating embeddings for ${modelChunkTexts.length} chunks...`);
-        let modelEmbeddings;
-        try {
-          modelEmbeddings = await embeddingService.generateBatchEmbeddings(modelChunkTexts);
-        } catch (embErr) {
-          console.error(`[Batch Upload] ❌ Embedding generation failed: ${embErr.message}`);
-          throw new Error(`Failed to generate embeddings: ${embErr.message}`);
-        }
-
-        if (!modelEmbeddings || modelEmbeddings.length === 0) {
-          throw new Error('No embeddings generated for model chunks');
-        }
-
-        console.log(`[Batch Upload] ✅ Model embeddings generated: ${modelEmbeddings.length}`);
-
-        // 5. Add to vector DB answers index
-        vectorDbService.addAnswerEmbeddings(
-          modelEmbeddings,
-          modelChunks.map((chunk) => ({
-            text: chunk.text,
-            questionId: modelAnswer._id.toString(),
-            maxScore,
-            testId
-          }))
-        );
-
-        console.log(`[Batch Upload] Embeddings added to vector DB`);
-
-        // 6. Generate embedding for student answer
-        const studentEmbedding = await embeddingService.generateEmbedding(studentAnswerText);
-
-        // 7. Query vector DB for similar chunks
+        const studentEmbedding = await embeddingService.generateEmbedding(student.studentAnswer);
         const retrievedChunks = vectorDbService.queryAnswers(studentEmbedding, 5, testId);
+        const evaluation = await aiService.evaluateAnswerWithRetrieval(
+          modelAnswer.questionText || 'General Question',
+          retrievedChunks.length > 0
+            ? retrievedChunks
+            : [{ text: modelAnswer.modelAnswer, questionId: modelAnswer._id }],
+          student.studentAnswer,
+          maxScore,
+          rubricPayload
+        );
 
-        console.log(`[Batch Upload] Retrieved ${retrievedChunks.length} similar chunks`);
-
-        if (retrievedChunks.length === 0) {
-          throw new Error('Could not retrieve relevant context from model answer');
-        }
-
-        // 8. Build evaluation context
-        const retrievedContext = retrievedChunks
-          .map(chunk => chunk.text)
-          .join('\n\n');
-        
-        // 9. Call LLM for evaluation
-        console.log(`[Batch Upload] Calling LLM for evaluation...`);
-        let evaluation;
-        try {
-          evaluation = await aiService.evaluateAnswerWithRetrieval(
-            modelAnswer.questionText || 'General Question',
-            retrievedChunks,
-            studentAnswerText,
-            maxScore,
-            null // Use default rubric
-          );
-        } catch (evalErr) {
-          throw new Error(`LLM evaluation failed: ${evalErr.message}`);
-        }
-
-        if (!evaluation || evaluation.score === undefined) {
+        if (!evaluation) {
           throw new Error('Invalid evaluation response from LLM');
         }
 
-        console.log(`[Batch Upload] Evaluation complete: ${evaluation.score}/${maxScore}`);
+        // Defensive numeric coercion: prefer evaluation.score, fallback to marks_breakdown.total
+        let numericScore = Number(evaluation.score);
+        if (!Number.isFinite(numericScore)) {
+          numericScore = Number(evaluation.marks_breakdown && evaluation.marks_breakdown.total);
+        }
+        if (!Number.isFinite(numericScore)) numericScore = 0;
 
-        // 10. Save evaluation to database
-        const evaluationResult = await EvaluationResult.create({
+        const evaluationPayload = {
           teacherId,
           testId,
-          studentName: file.originalname.replace(/\.[^/.]+$/, ''),
+          studentName: student.studentName || 'Anonymous',
           questionText: modelAnswer.questionText || '',
           modelAnswer: modelAnswer.modelAnswer,
-          studentAnswer: studentAnswerText,
-          marks: evaluation.score,
+          studentAnswer: student.studentAnswer,
+          marks: numericScore,
           maxMarks: maxScore,
-          matchedConcepts: evaluation.matchedConcepts || [],
-          missingConcepts: evaluation.missingConcepts || [],
+          matchedConcepts: evaluation.matched_concepts || [],
+          missingConcepts: evaluation.missing_concepts || [],
           feedback: evaluation.feedback || 'Evaluation completed',
           evaluationMethod: 'vector_retrieval_llm',
-          batchId,
-          batchName
-        });
+          batchId: resolvedBatchId,
+          batchName: student.batchName || null,
+          markingSchemeId: markingScheme ? markingScheme._id : null,
+          marksBreakdown: evaluation.marks_breakdown || {}
+        };
+
+        const evaluationResult = await EvaluationResult.findOneAndUpdate(
+          {
+            teacherId,
+            testId,
+            batchId: resolvedBatchId,
+            studentName: student.studentName || 'Anonymous'
+          },
+          { $set: evaluationPayload },
+          {
+            new: true,
+            upsert: true,
+            runValidators: true,
+            setDefaultsOnInsert: true
+          }
+        );
+
+        await StudentAnswer.updateOne({ _id: student._id }, { $set: { status: 'evaluated' } });
 
         result.status = 'completed';
-        result.score = evaluation.score;
-        result.percentage = Math.round((evaluation.score / maxScore) * 100);
-        result.matchedConcepts = evaluation.matchedConcepts || [];
-        result.missingConcepts = evaluation.missingConcepts || [];
+        // Return both legacy and normalized fields to keep frontend clients working
+        result.score = numericScore;
+        result.marks = numericScore;
+        result.percentage = Math.round((numericScore / maxScore) * 100);
+        result.matchedConcepts = evaluation.matched_concepts || [];
+        result.missingConcepts = evaluation.missing_concepts || [];
         result.feedback = evaluation.feedback || '';
         result.evaluationId = evaluationResult._id.toString();
         result.processingTime = (Date.now() - fileStartTime) / 1000;
-
         processedCount++;
-        
       } catch (error) {
-        console.error(`[Batch Upload] Error processing ${file.originalname}: ${error.message}`);
+        console.error(`[Batch Evaluate] Error processing ${student.studentName}: ${error.message}`);
+        await StudentAnswer.updateOne({ _id: student._id }, { $set: { status: 'failed' } });
         result.status = 'failed';
         result.error = error.message;
         result.processingTime = (Date.now() - fileStartTime) / 1000;
         failedCount++;
-      } finally {
-        // Clean up uploaded file
-        try {
-          fs.unlinkSync(file.path);
-        } catch (e) {
-          console.log(`[Batch Upload] Could not delete temp file: ${file.path}`);
-        }
       }
-      
+
       results.push(result);
     }
-    
-    // Calculate summary statistics
+
     const completedResults = results.filter(r => r.status === 'completed');
     const scores = completedResults.map(r => r.score);
-    
+
     const summary = {
-      totalFiles: req.files.length,
+      totalFiles: students.length,
       processedFiles: processedCount,
       failedFiles: failedCount,
       averageScore: completedResults.length > 0
@@ -358,18 +508,16 @@ router.post('/batch-upload-answers', authMiddleware, upload.array('files', 100),
       lowestScore: completedResults.length > 0 ? Math.min(...scores) : 0,
       totalTime: (Date.now() - startTime) / 1000
     };
-    
-    console.log(`[Batch Upload] Complete. Processed: ${processedCount}, Failed: ${failedCount}`);
-    console.log(`[Batch Upload] Summary:`, summary);
-    
+
     res.json({
       success: true,
+      batchId: resolvedBatchId,
+      autoDetectedBatch,
       results,
       summary
     });
-    
   } catch (error) {
-    console.error(`[Batch Upload] Fatal error: ${error.message}`);
+    console.error(`[Batch Evaluate] Fatal error: ${error.message}`);
     res.status(500).json({
       success: false,
       error: error.message
@@ -386,7 +534,7 @@ router.post('/batch-upload-answers', authMiddleware, upload.array('files', 100),
 router.get('/batch-upload-answers/status/:batchId', authMiddleware, async (req, res) => {
   try {
     const evaluations = await EvaluationResult.find({
-      userId: req.user.id,
+      teacherId: req.user.id,
       createdAt: {
         $gte: new Date(Date.now() - 1 * 60 * 60 * 1000) // Last 1 hour
       }

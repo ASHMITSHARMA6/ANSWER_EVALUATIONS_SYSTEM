@@ -8,9 +8,11 @@
  */
 
 const crypto = require('crypto');
+const cacheService = require('./cacheService');
 
 const EMBEDDING_MODEL = 'deterministic-hash-384';
 const EMBEDDING_DIMENSION = 384;
+const EMBEDDING_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 /**
  * Deterministic embedding generator
@@ -42,7 +44,13 @@ function generateEmbeddingsImpl(texts) {
  * Generate single embedding
  */
 async function generateEmbedding(text) {
-  const embeddings = generateEmbeddingsImpl([text]);
+  const safeText = String(text || '');
+  const cacheKey = `embed:${crypto.createHash('sha1').update(safeText).digest('hex')}`;
+  const cached = cacheService.get(cacheKey);
+  if (cached) return cached;
+
+  const embeddings = generateEmbeddingsImpl([safeText]);
+  cacheService.set(cacheKey, embeddings[0], EMBEDDING_CACHE_TTL_MS);
   return embeddings[0];
 }
 
@@ -50,15 +58,31 @@ async function generateEmbedding(text) {
  * Generate batch embeddings
  */
 async function generateBatchEmbeddings(texts, batchSize = 10) {
-  const allEmbeddings = [];
+  const safeTexts = Array.isArray(texts) ? texts.map((t) => String(t || '')) : [];
+  const results = new Array(safeTexts.length);
+  const missing = [];
 
-  for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize);
-    const embeddings = generateEmbeddingsImpl(batch);
-    allEmbeddings.push(...embeddings);
+  safeTexts.forEach((text, index) => {
+    const cacheKey = `embed:${crypto.createHash('sha1').update(text).digest('hex')}`;
+    const cached = cacheService.get(cacheKey);
+    if (cached) {
+      results[index] = cached;
+    } else {
+      missing.push({ text, index, cacheKey });
+    }
+  });
+
+  for (let i = 0; i < missing.length; i += batchSize) {
+    const batch = missing.slice(i, i + batchSize);
+    const embeddings = generateEmbeddingsImpl(batch.map((item) => item.text));
+    embeddings.forEach((embedding, idx) => {
+      const item = batch[idx];
+      results[item.index] = embedding;
+      cacheService.set(item.cacheKey, embedding, EMBEDDING_CACHE_TTL_MS);
+    });
   }
 
-  return allEmbeddings;
+  return results;
 }
 
 /**

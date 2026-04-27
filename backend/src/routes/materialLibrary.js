@@ -12,6 +12,18 @@ const { extractChapters } = require('../services/chapterExtractionService');
 
 const router = express.Router();
 
+const getDisplayTitle = (title, content) => {
+  const normalizedTitle = String(title || '').trim();
+  const isGeneric = /^material for (test|unit test)/i.test(normalizedTitle);
+  if (!isGeneric && normalizedTitle) return normalizedTitle;
+
+  const snippet = String(content || '').replace(/\s+/g, ' ').trim();
+  if (!snippet) return normalizedTitle || 'Canonical Material';
+
+  const short = snippet.slice(0, 60);
+  return `Material: ${short}${snippet.length > 60 ? '...' : ''}`;
+};
+
 // GET /api/material-library
 router.get('/', auth, async (req, res) => {
   try {
@@ -68,6 +80,7 @@ router.get('/', auth, async (req, res) => {
       return {
       id: m._id,
       title: m.title,
+  displayTitle: getDisplayTitle(m.title, m.content),
       contentHash: m.contentHash,
       createdAt: m.createdAt,
       updatedAt: m.updatedAt,
@@ -92,18 +105,34 @@ router.get('/chapters', auth, async (req, res) => {
       return res.status(400).json({ error: 'testId is required' });
     }
 
-    const materialQuery = {
-      teacherId: req.user._id,
-      testId
-    };
+    let material = null;
 
     if (materialId) {
-      materialQuery._id = materialId;
+      material = await StudyMaterial.findOne({
+        _id: materialId,
+        teacherId: req.user._id,
+        testId
+      })
+        .lean();
+
+      if (!material) {
+        material = await StudyMaterial.findOne({
+          canonicalMaterialId: materialId,
+          teacherId: req.user._id,
+          testId
+        })
+          .lean();
+      }
     }
 
-    const material = await StudyMaterial.findOne(materialQuery)
-      .sort({ createdAt: -1 })
-      .lean();
+    if (!material) {
+      material = await StudyMaterial.findOne({
+        teacherId: req.user._id,
+        testId
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+    }
 
     if (!material) {
       return res.json({ chapters: [] });
@@ -177,15 +206,24 @@ router.get('/references', auth, async (req, res) => {
       testId,
       canonicalMaterialId: { $ne: null }
     })
+      .sort({ createdAt: -1 })
       .populate('canonicalMaterialId')
       .lean();
 
     res.json({
-      references: references.map((ref) => ({
-        id: ref._id,
-        canonicalMaterialId: ref.canonicalMaterialId?._id || ref.canonicalMaterialId,
-        canonicalTitle: ref.canonicalMaterialId?.title || 'Canonical Material'
-      }))
+      references: references.map((ref) => {
+        const canonicalContent = ref.canonicalMaterialId?.content || '';
+        const canonicalTitle = ref.canonicalMaterialId?.title || 'Canonical Material';
+        return {
+          id: ref._id,
+          canonicalMaterialId: ref.canonicalMaterialId?._id || ref.canonicalMaterialId,
+          canonicalTitle,
+          canonicalDisplayTitle: getDisplayTitle(canonicalTitle, canonicalContent),
+          canonicalPreview: canonicalContent.slice(0, 120),
+          canonicalContentLength: canonicalContent.length,
+          createdAt: ref.createdAt
+        };
+      })
     });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to load references' });

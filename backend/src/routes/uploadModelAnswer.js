@@ -1,6 +1,7 @@
 const express = require('express');
 const ModelAnswer = require('../models/ModelAnswer');
 const auth = require('../middleware/auth');
+const knowledgeGraphService = require('../services/knowledgeGraphService');
 
 const router = express.Router();
 
@@ -21,6 +22,21 @@ router.post('/', auth, async (req, res) => {
       questionText: (questionText || '').trim(),
       maxMarks: Math.max(1, Math.min(100, Number(maxMarks) || 10)),
     });
+
+    try {
+      const combinedText = `${doc.questionText || ''}\n${doc.modelAnswer || ''}`.trim();
+      if (combinedText) {
+        await knowledgeGraphService.addConceptsFromText({
+          text: combinedText,
+          testId,
+          sourceType: 'model_answer',
+          sourceId: doc._id,
+          createdBy: req.user._id
+        });
+      }
+    } catch (kgErr) {
+      console.warn('[Upload Model Answer] Knowledge graph extraction skipped:', kgErr.message);
+    }
     res.status(201).json({ id: doc._id, message: 'Model answer uploaded' });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Upload failed' });

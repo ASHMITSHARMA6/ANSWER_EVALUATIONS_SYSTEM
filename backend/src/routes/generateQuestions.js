@@ -7,7 +7,15 @@ const auth = require('../middleware/auth');
 const { generateQuestionsWithRetrieval } = require('../services/aiService');
 const vectorDbService = require('../services/vectorDbService');
 const embeddingService = require('../services/embeddingService');
+const chunkingService = require('../services/chunkingService');
+const knowledgeGraphService = require('../services/knowledgeGraphService');
 const CanonicalMaterial = require('../models/CanonicalMaterial');
+const cacheService = require('../services/cacheService');
+const { extractChapterRanges } = require('../services/chapterExtractionService');
+
+const QGEN_RETRIEVAL_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const QGEN_RESULT_CACHE_VERSION = 'v2';
+const PLACEHOLDER_ANSWER_RE = /not enough information in the provided material\.?/i;
 
 const router = express.Router();
 
@@ -34,9 +42,12 @@ router.post('/', auth, async (req, res) => {
       chapterNumber,
       chapterSelections,
       materialId,
-      testId
+      testId,
+      useGraph = false,
+      graphLimit = 6,
+      graphWeight = 0.9
     } = req.body;
-    const questionCount = numQuestions || count || 5;
+  const questionCount = numQuestions || count || 5;
 
     if (!testId) {
       return res.status(400).json({ error: 'Select a test before generating questions.' });
@@ -49,18 +60,36 @@ router.post('/', auth, async (req, res) => {
       customPrompt: customPrompt ? customPrompt.substring(0, 50) + '...' : 'none',
       chapterName: chapterName || 'none',
       chapterNumber: chapterNumber || 'none',
-      chapterSelectionsCount: Array.isArray(chapterSelections) ? chapterSelections.length : 0
+      chapterSelectionsCount: Array.isArray(chapterSelections) ? chapterSelections.length : 0,
+      useGraph: !!useGraph
     });
 
-    // Step 1: Get latest material
-    const materialQuery = { teacherId: req.user._id, testId };
+    // Step 1: Get material (by study material id or canonical material id)
+    let material = null;
+
     if (materialId) {
-      materialQuery._id = materialId;
+      material = await StudyMaterial.findOne({
+        _id: materialId,
+        teacherId: req.user._id,
+        testId
+      })
+        .lean();
+
+      if (!material) {
+        material = await StudyMaterial.findOne({
+          canonicalMaterialId: materialId,
+          teacherId: req.user._id,
+          testId
+        })
+          .lean();
+      }
     }
 
-    const material = await StudyMaterial.findOne(materialQuery)
-      .sort({ createdAt: -1 })
-      .lean();
+    if (!material) {
+      material = await StudyMaterial.findOne({ teacherId: req.user._id, testId })
+        .sort({ createdAt: -1 })
+        .lean();
+    }
     
     if (!material) {
       console.warn('[Generate Questions] ⚠️ No study material found for this teacher');
@@ -110,23 +139,117 @@ router.post('/', auth, async (req, res) => {
 
     const chapterContext = selectionContext || legacyContext;
 
+    const normalizeMatch = (value) => String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    const selectionMatches = (range) => {
+      return normalizedSelections.some((selection) => {
+        if (selection.number && range.number && String(selection.number) === String(range.number)) {
+          return true;
+        }
+        const selectionTitle = normalizeMatch(selection.title);
+        const selectionName = normalizeMatch(selection.name);
+        const rangeTitle = normalizeMatch(range.title);
+        const rangeName = normalizeMatch(range.name);
+
+        if (selectionTitle && rangeTitle && (rangeTitle === selectionTitle || rangeTitle.includes(selectionTitle))) {
+          return true;
+        }
+        if (selectionName && rangeName && (rangeName === selectionName || rangeName.includes(selectionName))) {
+          return true;
+        }
+        return false;
+      });
+    };
+
     const effectivePrompt = [customPrompt, chapterContext]
       .filter((value) => value && String(value).trim())
       .join(' | ');
 
     const queryText = effectivePrompt || topic || chapterContext || 'study material';
 
-    if (queryText && queryText.trim()) {
+    const questionCacheKey = `qgen:result:${QGEN_RESULT_CACHE_VERSION}:${testId}:${materialId || 'latest'}:${queryText || 'study material'}:${difficulty}:${questionCount}:${sessionId || 'none'}:${useGraph ? 1 : 0}:${graphLimit}:${graphWeight}`;
+    const cachedResult = cacheService.get(questionCacheKey);
+    if (cachedResult) {
+      const cachedAnswers = Array.isArray(cachedResult.modelAnswers) ? cachedResult.modelAnswers : [];
+      const allPlaceholders = cachedAnswers.length > 0
+        && cachedAnswers.every((answer) => PLACEHOLDER_ANSWER_RE.test(String(answer || '').trim()));
+
+      if (!allPlaceholders) {
+        console.log(`[Generate Questions] ⚡ Using cached result (${cachedResult.questions?.length || 0})`);
+        return res.json(cachedResult);
+      }
+
+      console.warn('[Generate Questions] ⚠️ Ignoring stale cached result with placeholder model answers');
+    }
+
+  const cacheKey = `qgen:retrieval:${testId}:${material._id}:${queryText || 'study material'}:${useGraph ? 1 : 0}:${graphLimit}:${graphWeight}`;
+    const cachedChunks = cacheService.get(cacheKey);
+
+    if (cachedChunks) {
+      retrievedChunks = cachedChunks;
+      console.log(`[Generate Questions] ⚡ Using cached chunks (${retrievedChunks.length})`);
+    } else if (normalizedSelections.length > 0) {
+      const ranges = extractChapterRanges(materialContent);
+      const selectedRanges = ranges.filter(selectionMatches);
+      const selectedContent = selectedRanges.map((range) => range.content).join('\n\n');
+
+      if (selectedContent.trim()) {
+        console.log(`[Generate Questions] 📚 Using ${selectedRanges.length} selected chapters for retrieval`);
+        const chunked = chunkingService.chunkTextForQA(selectedContent, material._id.toString());
+        retrievedChunks = chunkingService.filterChunks(chunked, 30).slice(0, 20);
+        cacheService.set(cacheKey, retrievedChunks, QGEN_RETRIEVAL_CACHE_TTL_MS);
+      }
+    }
+
+    if (retrievedChunks.length === 0 && queryText && queryText.trim()) {
       // Embed the query and retrieve similar chunks
       console.log(`[Generate Questions] 📝 Custom Query: "${queryText.substring(0, 60)}..."`);
-  const queryEmbedding = await embeddingService.generateEmbedding(queryText);
-  retrievedChunks = vectorDbService.queryMaterial(queryEmbedding, 15, testId);
+      const queryEmbedding = await embeddingService.generateEmbedding(queryText);
+      const baseResults = vectorDbService.queryMaterial(queryEmbedding, 15, testId);
+
+      const merged = new Map();
+      const pushResult = (result, score) => {
+        const key = `${result.source || 'unknown'}:${result.index}`;
+        const existing = merged.get(key);
+        if (!existing || score > existing.score) {
+          merged.set(key, {
+            ...result,
+            score
+          });
+        }
+      };
+
+      baseResults.forEach((r) => pushResult(r, r.score));
+
+      if (useGraph && testId) {
+        const related = await knowledgeGraphService.getRelatedConceptsForText({
+          text: queryText,
+          testId,
+          limit: graphLimit
+        });
+
+        if (related.length > 0) {
+          const expansions = related.map((node) => `${queryText} ${node.name}`.trim());
+          const embeddings = await embeddingService.generateBatchEmbeddings(expansions);
+
+          embeddings.forEach((embedding) => {
+            const hits = vectorDbService.queryMaterial(embedding, 8, testId);
+            hits.forEach((hit) => pushResult(hit, hit.score * graphWeight));
+          });
+        }
+      }
+
+      retrievedChunks = Array.from(merged.values())
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 15);
+
+      cacheService.set(cacheKey, retrievedChunks, QGEN_RETRIEVAL_CACHE_TTL_MS);
       console.log(`[Generate Questions] ✅ Retrieved ${retrievedChunks.length} chunks for custom query`);
-    } else {
+    } else if (retrievedChunks.length === 0) {
       // Get chunks from latest material by querying a generic embedding of the material title
-  const materialEmbedding = await embeddingService.generateEmbedding('study material');
-  const allChunks = vectorDbService.queryMaterial(materialEmbedding, 15, testId);
+      const materialEmbedding = await embeddingService.generateEmbedding('study material');
+      const allChunks = vectorDbService.queryMaterial(materialEmbedding, 15, testId);
       retrievedChunks = allChunks;
+      cacheService.set(cacheKey, retrievedChunks, QGEN_RETRIEVAL_CACHE_TTL_MS);
       console.log(`[Generate Questions] ✅ Retrieved ${retrievedChunks.length} chunks (no specific query)`);
     }
 
@@ -158,11 +281,14 @@ router.post('/', auth, async (req, res) => {
 
     // Step 3b: Call AI service with retrieved chunks and custom prompt
     console.log(`[Generate Questions] 🤖 Calling AI service...`);
+    const variationToken = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const result = await generateQuestionsWithRetrieval(
       retrievedChunks,
       difficulty,
       Math.min(20, Math.max(1, Number(questionCount) || 5)),
-      effectivePrompt || undefined   // Pass custom prompt to AI service
+      effectivePrompt || undefined,   // Pass custom prompt to AI service
+      pastQuestions,
+      variationToken
     );
 
     if (result.error) {
@@ -171,10 +297,15 @@ router.post('/', auth, async (req, res) => {
     }
 
     console.log(`[Generate Questions] ✅ Generated ${result.questions.length} questions`);
-    const modelAnswers = Array.isArray(result.modelAnswers) ? result.modelAnswers : [];
+    const fallbackMessage = result.modelAnswerWarning
+      ? 'Model answers generated with fallback parsing.'
+      : 'Model answer unavailable. Check GROQ_API_KEY or model response.';
+    const modelAnswers = Array.isArray(result.modelAnswers) && result.modelAnswers.length
+      ? result.modelAnswers
+      : result.questions.map(() => fallbackMessage);
     const questionPairs = result.questions.map((question, index) => ({
       question,
-      modelAnswer: modelAnswers[index] || ''
+      modelAnswer: modelAnswers[index] || fallbackMessage
     }));
 
     // Step 4: Store in MongoDB
@@ -183,7 +314,7 @@ router.post('/', auth, async (req, res) => {
   materialId: material._id,
   testId,
       questions: result.questions,
-      modelAnswers,
+  modelAnswers,
       difficulty,
       customPrompt: customPrompt || undefined, // Store the custom prompt used
       retrievedChunkCount: retrievedChunks.length
@@ -191,14 +322,23 @@ router.post('/', auth, async (req, res) => {
 
     console.log(`[Generate Questions] 💾 Saved to MongoDB: ${questionSet._id}`);
 
-    res.json({
+    const responsePayload = {
       questions: result.questions,
       modelAnswers,
       questionPairs,
       questionSetId: questionSet._id,
       retrievedChunks: retrievedChunks.length,
-      message: customPrompt ? 'Questions generated using custom query' : 'Questions generated from study material'
-    });
+      message: customPrompt ? 'Questions generated using custom query' : 'Questions generated from study material',
+      warning: result.warning || undefined
+    };
+
+    if (!result.usedFallback) {
+      cacheService.set(questionCacheKey, responsePayload);
+    } else {
+      console.warn('[Generate Questions] ⚠️ Skipping cache due to fallback generation');
+    }
+
+    res.json(responsePayload);
   } catch (err) {
     console.error('[Generate Questions] ❌ Error:', {
       message: err.message,

@@ -33,6 +33,8 @@ router.post('/', auth, async (req, res) => {
       questions = [],
       description,
       keyConcepts = [],
+  conceptFirstEnabled = false,
+  criticalErrors = [],
       markingLevels = [],
       commonMistakes = [],
       bonusMarks = [],
@@ -65,6 +67,8 @@ router.post('/', auth, async (req, res) => {
           maxMarks: questions.length > 0 ? questions.reduce((sum, q) => sum + q.marks, 0) : maxMarks,
           description,
           keyConcepts,
+          conceptFirstEnabled,
+          criticalErrors,
           markingLevels,
           commonMistakes,
           bonusMarks,
@@ -80,6 +84,8 @@ router.post('/', auth, async (req, res) => {
         maxMarks: questions.length > 0 ? questions.reduce((sum, q) => sum + q.marks, 0) : maxMarks,
         description,
         keyConcepts,
+  conceptFirstEnabled,
+  criticalErrors,
         markingLevels,
         commonMistakes,
         bonusMarks,
@@ -204,6 +210,8 @@ router.put('/:id', auth, async (req, res) => {
       maxMarks,
       description,
       keyConcepts,
+  conceptFirstEnabled,
+  criticalErrors,
       markingLevels,
       commonMistakes,
       bonusMarks
@@ -214,6 +222,8 @@ router.put('/:id', auth, async (req, res) => {
     if (maxMarks) scheme.maxMarks = maxMarks;
     if (description) scheme.description = description;
     if (keyConcepts) scheme.keyConcepts = keyConcepts;
+  if (conceptFirstEnabled !== undefined) scheme.conceptFirstEnabled = !!conceptFirstEnabled;
+  if (criticalErrors) scheme.criticalErrors = criticalErrors;
     if (markingLevels) scheme.markingLevels = markingLevels;
     if (commonMistakes) scheme.commonMistakes = commonMistakes;
     if (bonusMarks) scheme.bonusMarks = bonusMarks;

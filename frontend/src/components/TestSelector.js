@@ -22,6 +22,7 @@ const TestSelector = ({ onChange, allowCreate = false }) => {
         setSelectedTestId(defaultId);
         localStorage.setItem('selectedTestId', defaultId);
         localStorage.setItem('selectedTestName', list[0].name || '');
+        window.dispatchEvent(new Event('selected-test-updated'));
         if (onChange) onChange(defaultId);
       }
     } catch (err) {
@@ -42,6 +43,7 @@ const TestSelector = ({ onChange, allowCreate = false }) => {
     const selected = tests.find((t) => t._id === id);
     localStorage.setItem('selectedTestId', id || '');
     localStorage.setItem('selectedTestName', selected?.name || '');
+    window.dispatchEvent(new Event('selected-test-updated'));
     if (onChange) onChange(id);
   };
 
@@ -64,6 +66,7 @@ const TestSelector = ({ onChange, allowCreate = false }) => {
         setSelectedTestId(created._id);
         localStorage.setItem('selectedTestId', created._id);
         localStorage.setItem('selectedTestName', created.name || '');
+        window.dispatchEvent(new Event('selected-test-updated'));
         setNewTestName('');
         setNewTestDescription('');
         if (onChange) onChange(created._id);

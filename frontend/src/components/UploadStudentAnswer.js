@@ -111,7 +111,9 @@ const UploadStudentAnswer = () => {
         return;
       }
 
-      const effectiveModelAnswer = modelAnswerSource === 'manual' ? modelAnswer.trim() : '';
+      const effectiveModelAnswer = modelAnswerSource === 'manual'
+        ? modelAnswer.trim()
+        : (savedModelAnswer?.modelAnswer || '');
 
       if (modelAnswerSource === 'manual' && !effectiveModelAnswer) {
         setMessage('You selected "Type manually" but didn\'t enter a model answer. Please enter one or switch to "Use saved".');
@@ -135,6 +137,10 @@ const UploadStudentAnswer = () => {
       };
 
       if (modelAnswerSource === 'manual' && effectiveModelAnswer) {
+        payload.modelAnswer = effectiveModelAnswer;
+      }
+
+      if (modelAnswerSource === 'database' && savedModelAnswer?.modelAnswer) {
         payload.modelAnswer = effectiveModelAnswer;
       }
 

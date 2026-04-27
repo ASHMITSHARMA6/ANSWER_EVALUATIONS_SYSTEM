@@ -152,7 +152,75 @@ const extractChapters = (content = '') => {
   return chapters;
 };
 
+const extractChapterRanges = (content = '') => {
+  const rawLines = String(content || '').split(/\r?\n/);
+  const normalized = rawLines.map(normalizeLine);
+
+  const chapterMarkers = [];
+  for (let i = 0; i < normalized.length; i++) {
+    const chapter = extractChapterFromLine(normalized[i]);
+    if (!chapter) continue;
+
+    let name = chapter.name || '';
+    if (isLikelyPageNumber(name)) {
+      name = '';
+    }
+
+    if (!name) {
+      const nextLine = normalized[i + 1];
+      if (
+        nextLine &&
+        nextLine.length <= 120 &&
+        !isChapterHeading(nextLine) &&
+        !isLikelyPageNumber(nextLine)
+      ) {
+        name = nextLine;
+      }
+    }
+
+    if (NOISE_TITLE_PATTERNS.some((pattern) => pattern.test(name))) {
+      name = '';
+    }
+
+    if (!name && !chapter.name) {
+      continue;
+    }
+
+    const normalizedChapter = {
+      ...chapter,
+      name
+    };
+
+    const title = formatChapterTitle(normalizedChapter);
+    if (!title) continue;
+
+    chapterMarkers.push({
+      ...normalizedChapter,
+      title,
+      startLine: i
+    });
+  }
+
+  const ranges = [];
+  for (let i = 0; i < chapterMarkers.length; i++) {
+    const current = chapterMarkers[i];
+    const next = chapterMarkers[i + 1];
+    const endLine = next ? Math.max(current.startLine, next.startLine - 1) : rawLines.length - 1;
+
+    const contentLines = rawLines.slice(current.startLine, endLine + 1).join('\n');
+    ranges.push({
+      number: current.number || '',
+      name: current.name || '',
+      title: current.title || '',
+      content: contentLines
+    });
+  }
+
+  return ranges;
+};
+
 module.exports = {
   extractChapters,
+  extractChapterRanges,
   formatChapterTitle
 };

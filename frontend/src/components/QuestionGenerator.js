@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -30,44 +30,126 @@ const QuestionGenerator = () => {
   const [selectedTestId, setSelectedTestId] = useState(localStorage.getItem('selectedTestId') || '');
   const questionsContainerRef = useRef(null);
 
-  useEffect(() => {
-    const fetchChapters = async () => {
-      if (!selectedTestId) {
-        setChapters([]);
-        setChapterName('');
-        setChapterNumber('');
-        setSelectedChapters([]);
-        setReferencedMaterials([]);
-        setSelectedMaterialId('');
-        return;
-      }
-      setChaptersLoading(true);
-      try {
-        const refsRes = await axiosInstance.get(`/material-library/references?testId=${selectedTestId}`);
-        const refs = refsRes.data.references || [];
-        const testsRes = await axiosInstance.get('/tests');
-        const tests = testsRes.data?.tests || [];
-        const map = tests.reduce((acc, t) => {
-          acc[t._id] = t.name;
-          return acc;
-        }, {});
-        setTestNameMap(map);
-        setReferencedMaterials(refs);
-        const defaultMaterialId = refs[0]?.id || '';
-        setSelectedMaterialId(defaultMaterialId);
+  const fetchChaptersForMaterial = useCallback(async (testId, materialId) => {
+    if (!testId) return;
+    setChaptersLoading(true);
+    try {
+      const chaptersRes = await axiosInstance.get(`/material-library/chapters?testId=${testId}${materialId ? `&materialId=${materialId}` : ''}`);
+      setChapters(chaptersRes.data.chapters || []);
+      setSelectedChapters([]);
+    } catch (err) {
+      setChapters([]);
+      setError(err?.response?.data?.error || 'Failed to load chapters');
+    } finally {
+      setChaptersLoading(false);
+    }
+  }, []);
 
-        const chaptersRes = await axiosInstance.get(`/material-library/chapters?testId=${selectedTestId}${defaultMaterialId ? `&materialId=${defaultMaterialId}` : ''}`);
-        setChapters(chaptersRes.data.chapters || []);
-        setSelectedChapters([]);
-      } catch (err) {
-        setChapters([]);
-        setError(err?.response?.data?.error || 'Failed to load chapters');
-      } finally {
-        setChaptersLoading(false);
+  const loadReferencesAndChapters = useCallback(async (testId, preferredMaterialId = '') => {
+    if (!testId) {
+      setChapters([]);
+      setChapterName('');
+      setChapterNumber('');
+      setSelectedChapters([]);
+      setReferencedMaterials([]);
+      setSelectedMaterialId('');
+      return;
+    }
+    setChaptersLoading(true);
+    try {
+  const refsRes = await axiosInstance.get(`/material-library/references?testId=${testId}`);
+      const refs = refsRes.data.references || [];
+  const testsRes = await axiosInstance.get('/tests');
+      const tests = testsRes.data?.tests || [];
+      const map = tests.reduce((acc, t) => {
+        acc[t._id] = t.name;
+        return acc;
+      }, {});
+      setTestNameMap(map);
+      setReferencedMaterials(refs);
+
+      const storedSelection = localStorage.getItem(`selectedMaterialId:${testId}`) || '';
+      let nextMaterialId = preferredMaterialId || storedSelection;
+      if (!nextMaterialId || !refs.some((ref) => String(ref.id) === String(nextMaterialId))) {
+        nextMaterialId = refs[0]?.id || '';
+      }
+      setSelectedMaterialId(nextMaterialId);
+      if (nextMaterialId) {
+        localStorage.setItem(`selectedMaterialId:${testId}`, String(nextMaterialId));
+      }
+
+      await fetchChaptersForMaterial(testId, nextMaterialId);
+    } catch (err) {
+      setChapters([]);
+      setError(err?.response?.data?.error || 'Failed to load chapters');
+    } finally {
+      setChaptersLoading(false);
+    }
+  }, [fetchChaptersForMaterial]);
+
+  const formatMaterialLabel = useCallback((ref) => {
+    const match = String(ref.canonicalTitle || '').match(/([0-9a-fA-F]{24})/);
+    const testName = match ? testNameMap[match[1]] : '';
+    const title = ref.canonicalDisplayTitle || ref.canonicalTitle || `Material ${ref.id}`;
+    const preview = ref.canonicalPreview
+      ? ref.canonicalPreview.replace(/\s+/g, ' ').trim().slice(0, 60)
+      : '';
+    const lengthInfo = ref.canonicalContentLength ? `${ref.canonicalContentLength} chars` : '';
+    const pieces = [title, testName ? `for ${testName}` : '', preview ? `“${preview}...”` : '', lengthInfo].filter(Boolean);
+    return pieces.join(' • ');
+  }, [testNameMap]);
+
+  useEffect(() => {
+    loadReferencesAndChapters(selectedTestId);
+  }, [selectedTestId, loadReferencesAndChapters]);
+
+  useEffect(() => {
+    if (selectedTestId && selectedMaterialId) {
+      fetchChaptersForMaterial(selectedTestId, selectedMaterialId);
+    }
+  }, [selectedMaterialId, selectedTestId, fetchChaptersForMaterial]);
+
+  useEffect(() => {
+    const handleReferencesUpdated = () => {
+      if (selectedTestId) {
+        loadReferencesAndChapters(selectedTestId, selectedMaterialId);
       }
     };
 
-    fetchChapters();
+    const handleStorage = (event) => {
+      if (event.key === 'materialReferencesUpdatedAt' && selectedTestId) {
+        loadReferencesAndChapters(selectedTestId, selectedMaterialId);
+      }
+    };
+
+    window.addEventListener('material-references-updated', handleReferencesUpdated);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('material-references-updated', handleReferencesUpdated);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [selectedTestId, selectedMaterialId, loadReferencesAndChapters]);
+
+  useEffect(() => {
+    const handleTestUpdated = () => {
+      const nextTestId = localStorage.getItem('selectedTestId') || '';
+      if (nextTestId !== selectedTestId) {
+        setSelectedTestId(nextTestId);
+      }
+    };
+
+    const handleStorage = (event) => {
+      if (event.key === 'selectedTestId') {
+        handleTestUpdated();
+      }
+    };
+
+    window.addEventListener('selected-test-updated', handleTestUpdated);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('selected-test-updated', handleTestUpdated);
+      window.removeEventListener('storage', handleStorage);
+    };
   }, [selectedTestId]);
 
   const handleGenerate = async () => {
@@ -364,47 +446,71 @@ const QuestionGenerator = () => {
         <p style={{ fontSize: '12px', color: '#999', margin: '5px 0' }}>
           Chapters are extracted from the referenced material you select.
         </p>
-        <select
-          value={selectedMaterialId}
-          onChange={async (e) => {
-            const nextId = e.target.value;
-            setSelectedMaterialId(nextId);
-            setSelectedChapters([]);
-            if (!selectedTestId) return;
-            setChaptersLoading(true);
-            try {
-              const chaptersRes = await axiosInstance.get(`/material-library/chapters?testId=${selectedTestId}${nextId ? `&materialId=${nextId}` : ''}`);
-              setChapters(chaptersRes.data.chapters || []);
-            } catch (err) {
-              setChapters([]);
-              setError(err?.response?.data?.error || 'Failed to load chapters');
-            } finally {
-              setChaptersLoading(false);
-            }
-          }}
-          disabled={chaptersLoading || referencedMaterials.length === 0}
-          style={{
-            width: '100%',
-            padding: '10px',
-            border: '1px solid #bdbdbd',
-            borderRadius: '6px',
-            fontSize: 14
-          }}
-        >
-          {referencedMaterials.length === 0 ? (
-            <option value="">No referenced materials for this test</option>
-          ) : (
-            referencedMaterials.map((ref) => {
-              const match = String(ref.canonicalTitle || '').match(/([0-9a-fA-F]{24})/);
-              const testName = match ? testNameMap[match[1]] : '';
-              return (
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <select
+            value={selectedMaterialId}
+            onChange={async (e) => {
+              const nextId = e.target.value;
+              setSelectedMaterialId(nextId);
+              if (selectedTestId) {
+                localStorage.setItem(`selectedMaterialId:${selectedTestId}`, String(nextId));
+              }
+              setSelectedChapters([]);
+              if (!selectedTestId) return;
+              await fetchChaptersForMaterial(selectedTestId, nextId);
+            }}
+            disabled={chaptersLoading || referencedMaterials.length === 0}
+            style={{
+              flex: 1,
+              padding: '10px',
+              border: '1px solid #bdbdbd',
+              borderRadius: '6px',
+              fontSize: 14
+            }}
+          >
+            {referencedMaterials.length === 0 ? (
+              <option value="">No referenced materials for this test</option>
+            ) : (
+              referencedMaterials.map((ref) => (
                 <option key={ref.id} value={ref.id}>
-                  {testName ? `Material for ${testName}` : (ref.canonicalTitle || ref.id)}
+                  {formatMaterialLabel(ref)}
                 </option>
+              ))
+            )}
+          </select>
+          <button
+            type="button"
+            onClick={() => loadReferencesAndChapters(selectedTestId, selectedMaterialId)}
+            disabled={!selectedTestId || chaptersLoading}
+            style={{
+              padding: '10px 12px',
+              borderRadius: '6px',
+              border: '1px solid #bdbdbd',
+              background: '#fff',
+              cursor: !selectedTestId || chaptersLoading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            🔄 Refresh
+          </button>
+        </div>
+        {selectedMaterialId && referencedMaterials.length > 0 && (
+          <div style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
+            {(() => {
+              const selected = referencedMaterials.find((ref) => String(ref.id) === String(selectedMaterialId));
+              if (!selected) return null;
+              const preview = selected.canonicalPreview ? `${selected.canonicalPreview}...` : 'No preview available.';
+              const lengthInfo = selected.canonicalContentLength ? ` (${selected.canonicalContentLength} chars)` : '';
+              return (
+                <span>
+                  <strong>Selected:</strong> {formatMaterialLabel(selected)}
+                  <span style={{ marginLeft: 8, color: '#999' }}>
+                    [ID: {selected.id}]
+                  </span>
+                </span>
               );
-            })
-          )}
-        </select>
+            })()}
+          </div>
+        )}
       </div>
 
       <div style={{ marginBottom: 20 }}>
