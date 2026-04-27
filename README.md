@@ -125,47 +125,6 @@ Start here based on your interest:
 - Testing procedures
 - Troubleshooting tips
 
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    TEACHER BROWSER                       │
-│                   (React Frontend)                       │
-│  Login | Upload Material | Generate Questions            │
-│  Upload Model/Student Answers | Evaluate | View Results  │
-└──────────────────┬──────────────────────────────────────┘
-                   │ HTTP/JSON
-┌──────────────────▼──────────────────────────────────────┐
-│                  BACKEND (Node.js + Express)             │
-│                                                           │
-│  ┌─────────────────────────────────────────────────────┐ │
-│  │ Services                                             │ │
-│  │  • vectorDbService.js - FAISS index operations      │ │
-│  │  • embeddingService.js - OpenAI embeddings          │ │
-│  │  • chunkingService.js - Text chunking               │ │
-│  │  • aiService.js - LLM evaluation with retrieval     │ │
-│  │  • knowledgeGraphService.js - Concepts & relations  │ │
-│  └─────────────────────────────────────────────────────┘ │
-│                                                           │
-│  ┌────────────────────┬──────────────────────────────┐  │
-│  │   VECTOR DB        │      DATABASE                │  │
-│  │   (FAISS JSON)     │      (MongoDB)               │  │
-│  │                    │                              │  │
-│  │ material_index     │ • StudyMaterials             │  │
-│  │ answers_index      │ • Chunks (metadata)          │  │
-│  │ (1536-dim)         │ • ModelAnswers               │  │
-│  │ (cosine sim)       │ • StudentAnswers             │  │
-│  │                    │ • EvaluationResults          │  │
-│  │                    │ • KnowledgeNodes             │  │
-│  │                    │ • KnowledgeEdges             │  │
-│  │                    │ • Users                      │  │
-│  └────────────────────┴──────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
-```
-
----
 
 ## 📊 API Endpoints
 
