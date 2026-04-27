@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-04-22T10:35:12.655Z",
+  "mode": "single",
+  "evaluationMode": "ai",
+  "source": "./Biology-0089-0159/0089.txt",
+  "result": {
+    "source": "./Biology-0089-0159/0089.txt",
+    "evaluationMode": "ai",
+    "lineCount": 16,
+    "variants": [
+      {
+        "id": 1,
+        "missingLineIndex": 0,
+        "missingLine": "Viruses is most abondant entities .",
+        "answer": "they are non # entities having\ngentil material ancapsulated in a\nprotein covering ( protein coat .\nthey are termed ( posiom substanes )\ncatin word ( venow ) .\nthat bacteria can not pass through\nchamberland filters but agent\nCausing Robies do .\nThere nature of virus TMV\ncompound microscope silver\ncrystals . Protein in nature #\nnuclic Acid in samallar amount\nof DNA / RNA .\n# No Electro microscope\ndises causing agent .",
+        "score": 18,
+        "maxScore": 25,
+        "percentage": 72,
+        "matchedCount": 18,
+        "missingCount": 7,
+        "feedback": "The student answer demonstrates a good understanding of some key concepts related to viruses, such as their non-living nature, protein covering, and inability to pass through Chamberland filters. However, the answer lacks contextual clarity and fails to address several crucial ideas, including the abundance of viruses, the nature of the TMV virus, and the role of enzymes. Furthermore, the answer contains factual mismatches, such as the incorrect spelling of 'gentle' as 'gentil' and 'nucleic' as 'nuclic'. Additionally, the answer lacks depth in explanation, failing to provide a clear and concise description of the concepts."
+      },
+      {
+        "id": 2,
+        "missingLineIndex": 5,
+        "missingLine": "catin word ( venow ) .",
+        "answer": "Viruses is most abondant entities .\nthey are non # entities having\ngentil material ancapsulated in a\nprotein covering ( protein coat .\nthey are termed ( posiom substanes )\nthat bacteria can not pass through\nchamberland filters but agent\nCausing Robies do .\nThere nature of virus TMV\ncompound microscope silver\ncrystals . Protein in nature #\nnuclic Acid in samallar amount\nof DNA / RNA .\n# No Electro microscope\ndises causing agent .",
+        "score": 21,
+        "maxScore": 25,
+        "percentage": 84,
+        "matchedCount": 16,
+        "missingCount": 7,
+        "feedback": "The student answer demonstrates a good understanding of some key concepts related to viruses, such as their non-living nature, protein covering, and inability to pass through Chamberland filters. However, the answer lacks contextual clarity and completeness, as it fails to address several important points mentioned in the model answer. The student also exhibits weak explanation depth, as the answer is largely a repetition of the model answer without any additional insights or explanations."
+      },
+      {
+        "id": 3,
+        "missingLineIndex": 10,
+        "missingLine": "compound microscope silver",
+        "answer": "Viruses is most abondant entities .\nthey are non # entities having\ngentil material ancapsulated in a\nprotein covering ( protein coat .\nthey are termed ( posiom substanes )\ncatin word ( venow ) .\nthat bacteria can not pass through\nchamberland filters but agent\nCausing Robies do .\nThere nature of virus TMV\ncrystals . Protein in nature #\nnuclic Acid in samallar amount\nof DNA / RNA .\n# No Electro microscope\ndises causing agent .",
+        "score": 22,
+        "maxScore": 25,
+        "percentage": 88,
+        "matchedCount": 18,
+        "missingCount": 6,
+        "feedback": "The student answer demonstrates a good understanding of some key concepts related to viruses, such as their non-living nature, protein covering, and inability to pass through Chamberland filters. However, the answer lacks contextual clarity and completeness, as it misses several important ideas and contains factual mismatches. The student also fails to provide a clear explanation of the nature of virus TMV and its visibility under different microscopes."
+      },
+      {
+        "id": 4,
+        "missingLineIndex": 15,
+        "missingLine": "dises causing agent .",
+        "answer": "Viruses is most abondant entities .\nthey are non # entities having\ngentil material ancapsulated in a\nprotein covering ( protein coat .\nthey are termed ( posiom substanes )\ncatin word ( venow ) .\nthat bacteria can not pass through\nchamberland filters but agent\nCausing Robies do .\nThere nature of virus TMV\ncompound microscope silver\ncrystals . Protein in nature #\nnuclic Acid in samallar amount\nof DNA / RNA .\n# No Electro microscope",
+        "score": 23,
+        "maxScore": 25,
+        "percentage": 92,
+        "matchedCount": 17,
+        "missingCount": 5,
+        "feedback": "The student answer demonstrates a good understanding of some key concepts related to viruses, such as their non-living nature, protein covering, and inability to pass through Chamberland filters. However, the answer lacks contextual clarity and contains several factual mismatches, such as the abundance of viruses, their composition, and the method of revealing their nature. Additionally, the answer lacks depth in explanation and contains weak points, such as the mention of silver crystals and the visibility of viruses under an electro microscope."
+      }
+    ],
+    "ranking": [
+      {
+        "variantId": 4,
+        "score": 23,
+        "maxScore": 25,
+        "percentage": 92,
+        "missingLine": "dises causing agent ."
+      },
+      {
+        "variantId": 3,
+        "score": 22,
+        "maxScore": 25,
+        "percentage": 88,
+        "missingLine": "compound microscope silver"
+      },
+      {
+        "variantId": 2,
+        "score": 21,
+        "maxScore": 25,
+        "percentage": 84,
+        "missingLine": "catin word ( venow ) ."
+      },
+      {
+        "variantId": 1,
+        "score": 18,
+        "maxScore": 25,
+        "percentage": 72,
+        "missingLine": "Viruses is most abondant entities ."
+      }
+    ]
+  }
+}

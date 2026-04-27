@@ -1,0 +1,439 @@
+BIOLOGY BATCH EVALUATION REPORT (FOR PROFESSOR)
+========================================================================
+Generated At: 2026-04-22T10:24:47.537Z
+Source Directory: /home/ansh/Desktop/TES/backend/Biology-0089-0159
+Evaluation Mode: ai
+Total Files Evaluated: 71
+Total Variants Evaluated: 284
+Average Variant Score: 2225
+
+P
+
+Detailed Variant Scores:
+------------------------------------------------------------------------
+
+[0089.txt]
+  Variant 1: 2325 (92%) | Missing: Viruses is most abondant entities .
+  Variant 2: 2325 (92%) | Missing: catin word ( venow ) .
+  Variant 3: 2425 (96%) | Missing: compound microscope silver
+  Variant 4: 2425 (96%) | Missing: dises causing agent .
+
+[0090.txt]
+  Variant 1: 2425 (96%) | Missing: Chlorophyta the member of
+  Variant 2: 2325 (92%) | Missing: (2) colonical (3) siphanales (4) multicellular
+  Variant 3: 2425 (96%) | Missing: motile Non motile unicellular form
+  Variant 4: 2425 (96%) | Missing: P
+
+[0091.txt]
+  Variant 1: 2425 (96%) | Missing: The histoy of the periodic table# reflects
+  Variant 2: 2325 (92%) | Missing: by Antoine . Laurent # #
+  Variant 3: 2425 (96%) | Missing: # platinum mercury tin
+  Variant 4: 2425 (96%) | Missing: up of a mixture .
+
+[0092.txt]
+  Variant 1: 2425 (96%) | Missing: PHYCOLOGY
+  Variant 2: 2325 (92%) | Missing: means seaweed and " logos " means to
+  Variant 3: 2425 (96%) | Missing: is # gantic # unicon
+  Variant 4: 2425 (96%) | Missing: # containing organism .
+
+[0093.txt]
+  Variant 1: 2425 (96%) | Missing: Evolution :
+  Variant 2: 2425 (96%) | Missing: structural resemblances with the ones
+  Variant 3: 2425 (96%) | Missing: Evolution indeed is occurring but the process
+  Variant 4: 2425 (96%) | Missing: at an amazing rate .
+
+[0094.txt]
+  Variant 1: 2425 (96%) | Missing: => " feedback Inhibitor "
+  Variant 2: 2325 (92%) | Missing: reaction attaching itself
+  Variant 3: 2425 (96%) | Missing: is # stop . Such machanism
+  Variant 4: 2425 (96%) | Missing: inhibitor .
+
+[0095.txt]
+  Variant 1: 2425 (96%) | Missing: " Inhibitor "
+  Variant 2: 2425 (96%) | Missing: # # or allostric site due
+  Variant 3: 2425 (96%) | Missing: 1) " Competative Inhibitor "
+  Variant 4: 2425 (96%) | Missing: inhibitor .
+
+[0096.txt]
+  Variant 1: 2425 (96%) | Missing: ( Nucleus )
+  Variant 2: 2425 (96%) | Missing: activities of the # cell
+  Variant 3: 2425 (96%) | Missing: Part Of Nucleus :-
+  Variant 4: 2225 (88%) | Missing: Cell . Nucleus act as a brain of cell .
+
+[0097.txt]
+  Variant 1: 2425 (96%) | Missing: Biological molecule .
+  Variant 2: 2425 (96%) | Missing: molecule which are made up of
+  Variant 3: 2425 (96%) | Missing: are S inside cytoplasm well as
+  Variant 4: 2425 (96%) | Missing: i-e ( N , H , CD , S , P eH )
+
+[0098.txt]
+  Variant 1: 2425 (96%) | Missing: Role of Sunlight in the process of
+  Variant 2: 2325 (92%) | Missing: dioxide into a sugar called
+  Variant 3: 2325 (92%) | Missing: & starch . Cellulose is used builing
+  Variant 4: 2425 (96%) | Missing: food & oxygen for life on Earth .
+
+[0099.txt]
+  Variant 1: 2425 (96%) | Missing: Viruses :
+  Variant 2: 2425 (96%) | Missing: living inside cell . For living it
+  Variant 3: 2425 (96%) | Missing: (2) Animals Viruses (3) Bacteria viruses .
+  Variant 4: 2425 (96%) | Missing: E.g. Tobbacco mosaic virus , AIDs , Rabbies
+
+[0100.txt]
+  Variant 1: 2425 (96%) | Missing: The universally accepted model about the
+  Variant 2: 2325 (92%) | Missing: which protein arranged in varing degree .
+  Variant 3: 2425 (96%) | Missing: Also know as # external protein .
+  Variant 4: 2425 (96%) | Missing: lipid , The membrane include carbobohydrat
+
+[0101.txt]
+  Variant 1: 2425 (96%) | Missing: Types of viruses :-
+  Variant 2: 2425 (96%) | Missing: 3) Bacteria viruses.
+  Variant 3: 2325 (92%) | Missing: contain DNA protected by capsid .
+  Variant 4: 2425 (96%) | Missing: parasite on bacteria .
+
+[0102.txt]
+  Variant 1: 2125 (84%) | Missing: Dark Cycle or Calvin #cycle
+  Variant 2: 2225 (88%) | Missing: directly # 3 second stage#
+  Variant 3: 2225 (88%) | Missing: rxn is used here
+  Variant 4: 2325 (92%) | Missing: Unstable compound
+
+[0103.txt]
+  Variant 1: 2425 (96%) | Missing: BACTERIOPHGES
+  Variant 2: 2425 (96%) | Missing: introduced # by # # d-Herelle .
+  Variant 3: 2425 (96%) | Missing: 2) Temperate or Non virulent plages .
+  Variant 4: 2325 (92%) | Missing: 3) Base # plate
+
+[0104.txt]
+  Variant 1: 2425 (96%) | Missing: Physiology : # is # the
+  Variant 2: 2425 (96%) | Missing: system.
+  Variant 3: 2425 (96%) | Missing: The # process by which
+  Variant 4: 2425 (96%) | Missing: water .
+
+[0105.txt]
+  Variant 1: 2425 (96%) | Missing: Virus is non-cellular , which cause different
+  Variant 2: 2225 (88%) | Missing: baundaries between cellular and non-
+  Variant 3: 2425 (96%) | Missing: Cell :- cell is the # basic
+  Variant 4: 2425 (96%) | Missing: membrane
+
+[0106.txt]
+  Variant 1: 2425 (96%) | Missing: Study :- an act of Learning in order
+  Variant 2: 2325 (92%) | Missing: their desirable choices .
+  Variant 3: 2425 (96%) | Missing: Study => Plant .
+  Variant 4: 2425 (96%) | Missing: => study Environment .
+
+[0107.txt]
+  Variant 1: 2425 (96%) | Missing: Cell: cell is the basic Structural and
+  Variant 2: 2425 (96%) | Missing: e.g , Animal
+  Variant 3: 2425 (96%) | Missing: # function :- Protection of the Cell .
+  Variant 4: 2425 (96%) | Missing: => Mjtochondria is the Power house of the cell .
+
+[0108.txt]
+  Variant 1: 2325 (92%) | Missing: The universally accepted model about
+  Variant 2: 2325 (92%) | Missing: Plasma membrane is a lipid bilayer
+  Variant 3: 2425 (96%) | Missing: Multicellular :
+  Variant 4: 2325 (92%) | Missing: only one cell like # Amoeba .
+
+[0109.txt]
+  Variant 1: 2325 (92%) | Missing: Classification of computers according
+  Variant 2: 2425 (96%) | Missing: => That are designed to solve a large
+  Variant 3: 2425 (96%) | Missing: Special purpose computer :
+  Variant 4: 2425 (96%) | Missing: => The computer that landed man
+
+[0110.txt]
+  Variant 1: 2425 (96%) | Missing: Kingdom Monera :
+  Variant 2: 2425 (96%) | Missing: Bacteria have large three divisions :
+  Variant 3: 2225 (88%) | Missing: -> They live in hot springs , caves , marshes etc .
+  Variant 4: 2425 (96%) | Missing: They are parasitic # categories .
+
+[0111.txt]
+  Variant 1: 2425 (96%) | Missing: Photosynthesis
+  Variant 2: 2425 (96%) | Missing: Photorespiration : It is the reaction
+  Variant 3: 2425 (96%) | Missing: it occur in the presence
+  Variant 4: 2425 (96%) | Missing: Peroxisomes # and mitochondria .
+
+[0112.txt]
+  Variant 1: 2425 (96%) | Missing: Seed
+  Variant 2: 2325 (92%) | Missing: the mother plant . The seed coat from the
+  Variant 3: 2425 (96%) | Missing: The monocotyledon seed has name
+  Variant 4: 2425 (96%) | Missing: Seed has # parts.
+
+[0113.txt]
+  Variant 1: 2425 (96%) | Missing: chlrophyla the membreber of Algae .
+  Variant 2: 2425 (96%) | Missing: i) Unicellular froms they are very #
+  Variant 3: 2425 (96%) | Missing: i) motile 2) non motile 3) palmelloid
+  Variant 4: 2425 (96%) | Missing: # heterotrichome .
+
+[0114.txt]
+  Variant 1: 2425 (96%) | Missing: General structure of viruses
+  Variant 2: 2425 (96%) | Missing: Composition :-
+  Variant 3: 2425 (96%) | Missing: green plants is very beautiful green
+  Variant 4: 2425 (96%) | Missing: human and plants relationship .
+
+[0115.txt]
+  Variant 1: 2425 (96%) | Missing: Phycology
+  Variant 2: 2225 (88%) | Missing: Greek word means Seaweed
+  Variant 3: 2425 (96%) | Missing: organism # #
+  Variant 4: 2425 (96%) | Missing: body .
+
+[0116.txt]
+  Variant 1: 2425 (96%) | Missing: Phycology
+  Variant 2: 2425 (96%) | Missing: a Greek word means #
+  Variant 3: 2325 (92%) | Missing: # bearing organism which
+  Variant 4: 2425 (96%) | Missing: # body .
+
+[0117.txt]
+  Variant 1: 2425 (96%) | Missing: Zoology :- The branch of biology that relates
+  Variant 2: 2425 (96%) | Missing: livening and extinct
+  Variant 3: 2425 (96%) | Missing: => Protos meaning means seacnd and #
+  Variant 4: 2425 (96%) | Missing: # into the # mouth Early # development
+
+[0118.txt]
+  Variant 1: 2425 (96%) | Missing: Leaves of Equisetum :.
+  Variant 2: 2425 (96%) | Missing: underground rihizome or upright branches
+  Variant 3: 2425 (96%) | Missing: branches
+  Variant 4: 2425 (96%) | Missing: reproduce by spores .
+
+[0119.txt]
+  Variant 1: 2425 (96%) | Missing: An ideal teacher
+  Variant 2: 2425 (96%) | Missing: waste his # time . He look
+  Variant 3: 2425 (96%) | Missing: students in one # #
+  Variant 4: 2425 (96%) | Missing: # regulary .
+
+[0120.txt]
+  Variant 1: 2425 (96%) | Missing: => Cy Pathway :-
+  Variant 2: 2425 (96%) | Missing: of plants & in mesophyll cells .
+  Variant 3: 2425 (96%) | Missing: the vascular bundles are covered by bundle
+  Variant 4: 2425 (96%) | Missing: slapped # chloroplast .
+
+[0121.txt]
+  Variant 1: 2425 (96%) | Missing: Cell biology
+  Variant 2: 2425 (96%) | Missing: and carbhyrates
+  Variant 3: 2425 (96%) | Missing: # lipid content of plasma
+  Variant 4: 2325 (92%) | Missing: Phospholipid chrlesterol .
+
+[0122.txt]
+  Variant 1: 2325 (92%) | Missing: Cell Biology :-
+  Variant 2: 2325 (92%) | Missing: The # study of cells
+  Variant 3: 2425 (96%) | Missing: => composed of Lipids , protein
+  Variant 4: 2425 (96%) | Missing: are 20% protein & 79% lipids
+
+[0123.txt]
+  Variant 1: 2225 (88%) | Missing: Cyano # bactria :-
+  Variant 2: 2425 (96%) | Missing: Protista ( Algea ) :-
+  Variant 3: 2425 (96%) | Missing: # unicellular and Multicellular our
+  Variant 4: 2425 (96%) | Missing: organism
+
+[0124.txt]
+  Variant 1: 2425 (96%) | Missing: Kingdom plantae :-
+  Variant 2: 2425 (96%) | Missing: have spors#
+  Variant 3: 2425 (96%) | Missing: plant also depend on
+  Variant 4: 2425 (96%) | Missing: our # ecosystem .
+
+[0124.txt]
+  Variant 1: 2425 (96%) | Missing: Let's eat
+  Variant 2: 2425 (96%) | Missing: gas sation . is the # food good ?
+  Variant 3: 2425 (96%) | Missing: Sana How are you ?
+  Variant 4: 2425 (96%) | Missing: It is a # rainy .
+
+[0126.txt]
+  Variant 1: 2425 (96%) | Missing: Phylum Protozoa :-
+  Variant 2: 2425 (96%) | Missing: and Hyman .
+  Variant 3: 2425 (96%) | Missing: => Protozoa are eukaryotic # resemble to
+  Variant 4: 2425 (96%) | Missing: => some Protozoa live symbiolic relation ship .
+
+[0127.txt]
+  Variant 1: 2425 (96%) | Missing: C3 Plants :
+  Variant 2: 2425 (96%) | Missing: During this the CO2
+  Variant 3: 2425 (96%) | Missing: 3PGA to form 1,3PGA and another
+  Variant 4: 2425 (96%) | Missing: and # # regenerate RUBP
+
+[0128.txt]
+  Variant 1: 2425 (96%) | Missing: Membrane structure
+  Variant 2: 2425 (96%) | Missing: # # # #
+  Variant 3: 2425 (96%) | Missing: can�t resolve by light microscope .
+  Variant 4: 2425 (96%) | Missing: => Cell membrane is # important in # .
+
+[0129.txt]
+  Variant 1: 2325 (92%) | Missing: Economic# Importance of
+  Variant 2: 2325 (92%) | Missing: source of carbohydrates
+  Variant 3: 2425 (96%) | Missing: as fooder to feed live stock
+  Variant 4: 2425 (96%) | Missing: # soil .
+
+[0130.txt]
+  Variant 1: 2425 (96%) | Missing: Photophosphorylation :
+  Variant 2: 2425 (96%) | Missing: ATP using the energy of sunlight
+  Variant 3: 2325 (92%) | Missing: of life .
+  Variant 4: 2425 (96%) | Missing: ( redox ) reactions .
+
+[0131.txt]
+  Variant 1: 2425 (96%) | Missing: Photorespiration :-
+  Variant 2: 2425 (96%) | Missing: with O2 # & metabolic Processing
+  Variant 3: 2425 (96%) | Missing: 1) Chloroplast
+  Variant 4: 2125 (84%) | Missing: with O2 form 2PG and 3PGA .
+
+[0132.txt]
+  Variant 1: 2425 (96%) | Missing: My favourity Topic protein
+  Variant 2: 2425 (96%) | Missing: of carbon , hydrogen , # oxygen and nitrogen .
+  Variant 3: 2425 (96%) | Missing: we take it in our diet is called essential .
+  Variant 4: 2425 (96%) | Missing: alkyl group.
+
+[0133.txt]
+  Variant 1: 2425 (96%) | Missing: Photosynthesis ; Photosynthesis is the combination
+  Variant 2: 2425 (96%) | Missing: which green plants make their food in the
+  Variant 3: 2425 (96%) | Missing: => Light reaction is also called light dependent
+  Variant 4: 2425 (96%) | Missing: Z scheme .
+
+[0134.txt]
+  Variant 1: 2425 (96%) | Missing: Topic Cytoplasm :-
+  Variant 2: 2425 (96%) | Missing: The soluble Part of the cytoplasm forms the ground
+  Variant 3: 2425 (96%) | Missing: solutions . A Colloidal solution may be sol ( non viscous )
+  Variant 4: 2425 (96%) | Missing: the cytoplasm Contain servel Cell organelles such as ;
+
+[0135.txt]
+  Variant 1: 2425 (96%) | Missing: Function Of Golgi Apparatus :-
+  Variant 2: 2425 (96%) | Missing: secretory products . In some cases
+  Variant 3: 2325 (92%) | Missing: them be attached to proteins lipids
+  Variant 4: 2325 (92%) | Missing: area to the plasma membrane .
+
+[0136.txt]
+  Variant 1: 2425 (96%) | Missing: Staning :-
+  Variant 2: 2425 (96%) | Missing: Specimen for exemination under the #microscopy .
+  Variant 3: 2425 (96%) | Missing: material Two stains may be used
+  Variant 4: 2425 (96%) | Missing: and #Natural #stain
+
+[0137.txt]
+  Variant 1: 2425 (96%) | Missing: Staining :-
+  Variant 2: 2325 (92%) | Missing: which cell or tissue is colourized with
+  Variant 3: 2425 (96%) | Missing: the staining technique is used to
+  Variant 4: 2325 (92%) | Missing: applied on living cell's with killing them .
+
+[0138.txt]
+  Variant 1: 2425 (96%) | Missing: Plasma Membra#n
+  Variant 2: 2225 (88%) | Missing: and small amount of ca#bohydrate is
+  Variant 3: 2425 (96%) | Missing: Statement :- " lipid by layer is a sea
+  Variant 4: 2425 (96%) | Missing: etc .
+
+[0139.txt]
+  Variant 1: 2325 (92%) | Missing: Selection of the plant tissue ( explant ) from
+  Variant 2: 2425 (96%) | Missing: This tissue must be sterillized to remove
+  Variant 3: 2325 (92%) | Missing: cytokinine ratio which result in the
+  Variant 4: 2425 (96%) | Missing: young tissue .
+
+[0140.txt]
+  Variant 1: 2425 (96%) | Missing: Plasma membrane is the thin , elastic and
+  Variant 2: 2425 (96%) | Missing: is called Plasma membrane . it is #
+  Variant 3: 2325 (92%) | Missing: the animals Cell . In # plant Cell it is
+  Variant 4: 2425 (96%) | Missing: over it while same .
+
+[0141.txt]
+  Variant 1: 2425 (96%) | Missing: Chromatography :-
+  Variant 2: 2325 (92%) | Missing: the mixture , normally as a gas , over
+  Variant 3: 2425 (96%) | Missing: and physical properties of the
+  Variant 4: 2425 (96%) | Missing: seqaration .
+
+[0142.txt]
+  Variant 1: 2425 (96%) | Missing: Tissue Culture :-
+  Variant 2: 2425 (96%) | Missing: liquid semi-solid growth medium such as
+  Variant 3: 2425 (96%) | Missing: culture . In the following section a list of
+  Variant 4: 2425 (96%) | Missing: 4) Inverted microscope 5) Refrigerator and freezer
+
+[0143.txt]
+  Variant 1: 2425 (96%) | Missing: Microdissection:-
+  Variant 2: 2425 (96%) | Missing: 1) Chromosome microdissection :-
+  Variant 3: 2425 (96%) | Missing: 2) Laser microdissection :-
+  Variant 4: 2425 (96%) | Missing: cell to adhere to a film ."
+
+[0144.txt]
+  Variant 1: 2425 (96%) | Missing: Viruses :
+  Variant 2: 2425 (96%) | Missing: cell . For living it seareld for cell . Viruses
+  Variant 3: 2425 (96%) | Missing: On the basis of genetic material
+  Variant 4: 2425 (96%) | Missing: 1) Tobacco Mosic virus , # AID-s
+
+[0145.txt]
+  Variant 1: 2425 (96%) | Missing: Cell :-
+  Variant 2: 2425 (96%) | Missing: al is # called cell biology .
+  Variant 3: 2425 (96%) | Missing: the foundation of biology & it is the most
+  Variant 4: 2425 (96%) | Missing: than cell .
+
+[0146.txt]
+  Variant 1: 2425 (96%) | Missing: Topic Cell Theory :-
+  Variant 2: 2425 (96%) | Missing: Cell theory :-
+  Variant 3: 2425 (96%) | Missing: Main Points :-
+  Variant 4: 2225 (88%) | Missing: 3) New cell arise from pre-existing #cell .
+
+[0147.txt]
+  Variant 1: 2425 (96%) | Missing: ( My Favourit Subject )
+  Variant 2: 2325 (92%) | Missing: about Botany , zoology and microorganism .
+  Variant 3: 2325 (92%) | Missing: It is divided into three types .
+  Variant 4: 2425 (96%) | Missing: membrane .
+
+[0148.txt]
+  Variant 1: 2425 (96%) | Missing: Cell :
+  Variant 2: 2425 (96%) | Missing: 1) All living organism
+  Variant 3: 2425 (96%) | Missing: living organism which passed from
+  Variant 4: 2425 (96%) | Missing: My wish I will a doctor in Future .
+
+[0149.txt]
+  Variant 1: 2425 (96%) | Missing: Cell Wall :-
+  Variant 2: 2425 (96%) | Missing: Outside the cell membrane .
+  Variant 3: 2425 (96%) | Missing: made up of #
+  Variant 4: 2425 (96%) | Missing: It provides rigidity to the cell .
+
+[0150.txt]
+  Variant 1: 2425 (96%) | Missing: Biology :-
+  Variant 2: 2425 (96%) | Missing: Microbiology :-
+  Variant 3: 2425 (96%) | Missing: The branch of biology
+  Variant 4: 2325 (92%) | Missing: of difficulties came in life .
+
+[0151.txt]
+  Variant 1: 2425 (96%) | Missing: Nucleoius :-
+  Variant 2: 2425 (96%) | Missing: the rest of nuclear# material . there
+  Variant 3: 2325 (92%) | Missing: is cormposed of two regions . the periph-
+  Variant 4: 2425 (96%) | Missing: RAN and , DNA .
+
+[0152.txt]
+  Variant 1: 2425 (96%) | Missing: Cell Wall :-
+  Variant 2: 2425 (96%) | Missing: oF the plant cells . (2) it is secreted by
+  Variant 3: 2425 (96%) | Missing: (4) cell walls oF neighboring cells are
+  Variant 4: 2325 (92%) | Missing: its characteristics have a close # relation .
+
+[0153.txt]
+  Variant 1: 2425 (96%) | Missing: Topic :- ( Lung cancer )
+  Variant 2: 2425 (96%) | Missing: major cause of Lung cancer .
+  Variant 3: 2425 (96%) | Missing: abestos exposure may also
+  Variant 4: 2425 (96%) | Missing: in different ways .
+
+[0154.txt]
+  Variant 1: 2425 (96%) | Missing: Selection of the plant tissue from a
+  Variant 2: 2425 (96%) | Missing: in culture medium . Medium sustain the
+  Variant 3: 2425 (96%) | Missing: tail and error . Multiplication of
+  Variant 4: 2425 (96%) | Missing: number of times .
+
+[0155.txt]
+  Variant 1: 2425 (96%) | Missing: Phycology
+  Variant 2: 2425 (96%) | Missing: weed and logy mean # see #
+  Variant 3: 2425 (96%) | Missing: No sex organ . No vasclular system
+  Variant 4: 2425 (96%) | Missing: Asexal Reproduction by posses throgh spores .
+
+[0156.txt]
+  Variant 1: 2425 (96%) | Missing: Science
+  Variant 2: 2225 (88%) | Missing: function is called biochemistry .
+  Variant 3: 2425 (96%) | Missing: The branch of Science
+  Variant 4: 2425 (96%) | Missing: - - - - - -
+
+[0157.txt]
+  Variant 1: 2425 (96%) | Missing: => Photorespiration :,
+  Variant 2: 2425 (96%) | Missing: # respiration in darkness
+  Variant 3: 2425 (96%) | Missing: => There are some common
+  Variant 4: 2425 (96%) | Missing: levels of O2 accumulated .
+
+[0158.txt]
+  Variant 1: 2425 (96%) | Missing: Phycology
+  Variant 2: 2425 (96%) | Missing: logos mean to study .
+  Variant 3: 2425 (96%) | Missing: chlorophyll conting organism with
+  Variant 4: 2325 (92%) | Missing: very cell produce a gamate .
+
+[0159.txt]
+  Variant 1: 2425 (96%) | Missing: Root
+  Variant 2: 2425 (96%) | Missing: There are two types
+  Variant 3: 2425 (96%) | Missing: tap roots . In dicot root , the amount
+  Variant 4: 2425 (96%) | Missing: -nating manner . It has fibrous roots .
